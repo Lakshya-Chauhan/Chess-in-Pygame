@@ -1,4 +1,3 @@
-import pygame
 class piece:
   def __init__(self, init_pos : list, cost : int, surface, color : int, piece : int, number : int):
     self.init_pos = init_pos  #Stores the initial Position of the chess piece
