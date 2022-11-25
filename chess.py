@@ -6,7 +6,7 @@ class piece:
     self.pos = init_pos  #Stores the current Position of the chess piece
     self.cost = cost  #Stores the cost of Chess piece
     self.surface = surface  #Stores the surface to blit for representing chess piece
-    self.color = color  #stores color of chess piece:   0 - White, 1 - Black
+    self.color = color  #stores color of chess piece: 0 - White, 1 - Black
     self.piece = piece  #0 - King, 1 - Queen, 2 - Rook, 3 - Bishop, 4 - Knight, 5 - Pawn
     self.temp_pos = [
     ]  #stores the temporary position of chess, made to be used in Drag and Drop and legal move
@@ -18,7 +18,7 @@ class piece:
     pass
 
   #if type is True, it means that it is needed to check if the given position is true, else it means to return a set of legal moves
-  def legal_moves(self, type, position=tuple()):
+  def legal_moves(self, type: bool, position=tuple()):
     legal_moves = set()
     if self.piece == 0:  #legal move of *King*
       pass
@@ -57,7 +57,7 @@ class piece:
     elif self.piece == 4:  #legal move of Knight
       for x in range(abs(self.pos[0] - 2), 8):
         for y in range(abs(self.pos[1] - 2), 8):
-          if (self.pos[0] - x) in [1, 2] and (self.pos[0] - x) in [1, 2]:
+          if abs(self.pos[0] - x) in [1, 2] and abs(self.pos[1] - y) in [1, 2]:
             #logic for finding legal move for Knight
             if abs(self.pos[0] - x) != abs(self.pos[1] - y):
               #exception of logic
@@ -68,3 +68,10 @@ class piece:
       pass
     else:
       return False
+
+    if type == True:  #checks if the value of type is True
+      #return true if the given position is a legal move else return false
+      return (position in legal_moves)
+    else:
+      #return the set of legal moves
+      return legal_moves
