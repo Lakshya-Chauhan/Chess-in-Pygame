@@ -26,31 +26,41 @@ class piece:
       pass
     elif self.piece == 2:  #legal move of Rook
       for x in range(self.pos[0] - 1, -1, -1):
+        #Searching for legal moves in horizontally backward direction until a black or white piece comes in the way
         pass
       for x in range(self.pos[0] + 1, 8):
+        #Searching for legal moves in horizontally forward direction until a black or white piece comes in the way
         pass
       for x in range(self.pos[1] - 1, -1, -1):
+        #Searching for legal moves in vertically backward direction until a black or white piece comes in the way
         pass
       for x in range(self.pos[1] + 1, 8):
+        #Searching for legal moves in vertically forward direction until a black or white piece comes in the way
         pass
     elif self.piece == 3:  #legal move of Bishop
       for x in range(self.pos[0] - 1, -1, -1):
         for y in range(self.pos[1] - 1, -1, -1):
+          #Searching for legal moves in top left direction diagonally until a piece comes in the way
           pass
       for x in range(self.pos[0] - 1, -1, -1):
         for y in range(self.pos[1] + 1, 8):
+          #Searching for legal moves in top right direction diagonally until a piece comes in the way
           pass
       for x in range(self.pos[0] + 1, 8):
         for y in range(self.pos[1] + 1, 8):
+          #Searching for legal moves in bottom right direction diagonally until a piece comes in the way
           pass
       for x in range(self.pos[0] + 1, 8):
         for y in range(self.pos[1] - 1, -1, -1):
+          #Searching for legal moves in bottom left direction diagonally until a piece comes in the way
           pass
     elif self.piece == 4:  #legal move of Knight
       for x in range(abs(self.pos[0] - 2), 8):
         for y in range(abs(self.pos[1] - 2), 8):
           if (self.pos[0] - x) in [1, 2] and (self.pos[0] - x) in [1, 2]:
+            #logic for finding legal move for Knight
             if abs(self.pos[0] - x) != abs(self.pos[1] - y):
+              #exception of logic
               legal_moves.add((x, y))
           else:
             continue
