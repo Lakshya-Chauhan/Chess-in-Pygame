@@ -1,0 +1,192 @@
+from thechess import *
+import pygame
+from os import system
+FoNt = 0
+FoNtprint = 0
+distx = 0
+disty = 0
+blocksize = 100
+pieceClicked = False
+elemClickIndex = None
+translucentOldPos = 0
+surfaces = [
+    [None, pygame.transform.scale(pygame.image.load("images/wK.png"), (blocksize, blocksize)),
+     pygame.transform.scale(pygame.image.load("images/bK.png"), (blocksize, blocksize))],
+
+    [None, pygame.transform.scale(pygame.image.load("images/wQ.png"), (blocksize, blocksize)),
+     pygame.transform.scale(pygame.image.load("images/bQ.png"), (blocksize, blocksize))],
+
+    [None, pygame.transform.scale(pygame.image.load("images/wR.png"), (blocksize, blocksize)),
+     pygame.transform.scale(pygame.image.load("images/bR.png"), (blocksize, blocksize))],
+
+    [None, pygame.transform.scale(pygame.image.load("images/wB.png"), (blocksize, blocksize)),
+     pygame.transform.scale(pygame.image.load("images/bB.png"), (blocksize, blocksize))],
+
+    [None, pygame.transform.scale(pygame.image.load("images/wN.png"), (blocksize, blocksize)),
+     pygame.transform.scale(pygame.image.load("images/bN.png"), (blocksize, blocksize))],
+
+    [None, pygame.transform.scale(pygame.image.load("images/wP.png"), (blocksize, blocksize)),
+     pygame.transform.scale(pygame.image.load("images/bP.png"), (blocksize, blocksize))]
+]
+
+
+PIECES = [
+    chess((0, 7), 5, -1, 2, 1),
+    chess((1, 7), 3, -1, 4, 2),
+    chess((2, 7), 3, -1, 3, 3),
+    chess((3, 7), 0, -1, 0, 4),
+    chess((4, 7), 9, -1, 1, 5),
+    chess((5, 7), 3, -1, 3, 6),
+    chess((6, 7), 3, -1, 4, 7),
+    chess((7, 7), 5, -1, 2, 8),
+
+    chess((0, 6), 1, -1, 5, 9),
+    chess((1, 6), 1, -1, 5, 10),
+    chess((2, 6), 1, -1, 5, 11),
+    chess((3, 6), 1, -1, 5, 12),
+    chess((4, 6), 1, -1, 5, 13),
+    chess((5, 6), 1, -1, 5, 14),
+    chess((6, 6), 1, -1, 5, 15),
+    chess((7, 6), 1, -1, 5, 16),
+
+
+    chess((0, 0), 5, 1, 2, 17),
+    chess((1, 0), 3, 1, 4, 18),
+    chess((2, 0), 3, 1, 3, 19),
+    chess((3, 0), 0, 1, 0, 20),
+    chess((4, 0), 9, 1, 1, 21),
+    chess((5, 0), 3, 1, 3, 22),
+    chess((6, 0), 3, 1, 4, 23),
+    chess((7, 0), 5, 1, 2, 24),
+
+    chess((0, 1), 1, 1, 5, 25),
+    chess((1, 1), 1, 1, 5, 26),
+    chess((2, 1), 1, 1, 5, 27),
+    chess((3, 1), 1, 1, 5, 28),
+    chess((4, 1), 1, 1, 5, 29),
+    chess((5, 1), 1, 1, 5, 30),
+    chess((6, 1), 1, 1, 5, 31),
+    chess((7, 1), 1, 1, 5, 32)
+]
+
+# Yin Yang
+
+
+def cls():
+    system("cls")
+
+
+def font(a: str, b=18):
+    global FoNt
+    FoNt = pygame.font.SysFont(a, b)
+
+
+def printpy(x: str, a=(100, 400), y=(128, 128, 128)):
+    global FoNt, FoNtprint
+    FoNtprint = FoNt.render(x, True, y)
+    screen.blit(FoNtprint, a)
+
+
+pygame.init()
+screen = pygame.display.set_mode((800, 800))
+#icon = pygame.image.load('')
+pygame.display.set_caption("Chess")
+# pygame.display.set_icon(icon)
+cls()
+
+
+def board():
+    global distx, disty, blocksize
+    for x in range(8):
+        for y in range(8):
+            if x % 2 == 0:
+                if y % 2 == 0:
+                    pygame.draw.rect(screen, (242, 232, 168), pygame.Rect(
+                        distx + x*blocksize, disty + y*blocksize, blocksize, blocksize))
+                else:
+                    pygame.draw.rect(screen, (125, 70, 70), pygame.Rect(
+                        distx + x*blocksize, disty + y*blocksize, blocksize, blocksize))
+            else:
+                if y % 2 == 0:
+                    pygame.draw.rect(screen, (125, 70, 70), pygame.Rect(
+                        distx + x*blocksize, disty + y*blocksize, blocksize, blocksize))
+                else:
+                    pygame.draw.rect(screen, (242, 232, 168), pygame.Rect(
+                        distx + x*blocksize, disty + y*blocksize, blocksize, blocksize))
+
+
+def Chessman():
+    global PIECES, surfaces, distx, disty, blocksize, elemClickIndex, translucentOldPos
+    for i in PIECES:
+        if i.captured == False:
+            if PIECES.index(i) != elemClickIndex:
+                screen.blit(surfaces[i.piece][i.color],
+                            (distx + i.temp_pos[0]*blocksize, disty + i.temp_pos[1]*blocksize))
+            else:
+                translucentOldPos = pygame.transform.scale(surfaces[i.piece][i.color],(blocksize,blocksize))
+                translucentOldPos.set_alpha(150)
+                screen.blit(translucentOldPos,
+                            (distx + i.pos[0]*blocksize, disty + i.pos[1]*blocksize))
+    if elemClickIndex != None:
+        screen.blit(surfaces[PIECES[elemClickIndex].piece][PIECES[elemClickIndex].color], 
+        (PIECES[elemClickIndex].temp_pos[0] - PIECES[elemClickIndex].delx, PIECES[elemClickIndex].temp_pos[1] - PIECES[elemClickIndex].dely))
+
+
+running = True
+clock = pygame.time.Clock()
+while running == True:
+    clock.tick(60)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mpos = pygame.mouse.get_pos()
+            pieceClicked = False
+            if mpos[0] > distx and mpos[0] < distx+blocksize*8 and mpos[1] > disty and mpos[1] < disty+blocksize*8:
+                pieceClicked = True
+                elemPos = (((mpos[0]-distx)//blocksize),
+                           ((mpos[1]-disty)//blocksize))
+
+                for elemIndex in range(len(PIECES)):
+                    if PIECES[elemIndex].captured == False:
+                        if PIECES[elemIndex].pos == elemPos:
+                            elemClickIndex = elemIndex
+                            PIECES[elemIndex].temp_pos = mpos
+                            PIECES[elemIndex].delx = mpos[0] - \
+                                (PIECES[elemIndex].pos[0]*blocksize + distx)
+                            PIECES[elemIndex].dely = mpos[1] - \
+                                (PIECES[elemIndex].pos[1]*blocksize + disty)
+
+        if event.type == pygame.MOUSEMOTION:
+            if pieceClicked == True and elemClickIndex != None:
+                PIECES[elemClickIndex].temp_pos = pygame.mouse.get_pos()
+
+        if event.type == pygame.MOUSEBUTTONUP:
+            if pieceClicked == True and elemClickIndex != None:
+                mpos1 = pygame.mouse.get_pos()
+                elemPos1 = (((mpos1[0]-distx)//blocksize),
+                            ((mpos1[1]-disty)//blocksize))
+                del mpos1
+                if PIECES[elemClickIndex].legal_moves(True, elemPos1) == True:
+                    PIECES[elemClickIndex].pos = elemPos1
+                    PIECES[elemClickIndex].temp_pos = elemPos1
+                    PIECES[elemClickIndex].delx = 0
+                    PIECES[elemClickIndex].dely = 0
+                    capturedNumber = [(i.number) for i in PIECES if ((i.pos == PIECES[elemClickIndex].pos) and (
+                        i.color != PIECES[elemClickIndex].color) and (i.captured == False))]
+                    if len(capturedNumber) == 1:
+                        for i in range(len(PIECES)):
+                            if PIECES[i].captured == False:
+                                if PIECES[i].number == capturedNumber[0]:
+                                    PIECES[i].captured = True
+                    pieceClicked = False
+                    elemClickIndex = None
+                else:
+                    PIECES[elemClickIndex].temp_pos = PIECES[elemClickIndex].pos
+                    pieceClicked = False
+                    elemClickIndex = None
+
+    # Code Here
+    board()
+    Chessman()
+    pygame.display.update()
