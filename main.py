@@ -69,7 +69,6 @@ PIECES = [
     chess((7, 1), 1, 1, 5, 32)
 ]
 
-# Yin Yang
 
 
 def cls():
