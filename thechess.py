@@ -9,12 +9,11 @@ class chess:
         self.cost = cost  # Stores the cost of Chess piece
         self.color = color  # stores color of chess piece: (-1) - White, 1 - Black
         self.piece = piece  # 0 - King, 1 - Queen, 2 - Rook, 3 - Bishop, 4 - Knight, 5 - Pawn
-        # stores the temporary position of chess, made to be used in Drag and Drop and legal move
-        self.temp_pos = init_pos
+        self.temp_pos = init_pos  # stores the temporary position of chess, made to be used in Drag and Drop and legal move
         self.captured = False  # variable tells if the piece is captured
-        self.number = number
-        self.delx = 0
-        self.dely = 0
+        self.number = number    #stores the serial number of the chess piece ( different for every piece )
+        self.delx = 0   #distance of the cursor position in x direction from self.pos
+        self.dely = 0   #distance of the cursor position in y direction from self.pos
 
         if self.color == -1:
             chess.white.append(self)
