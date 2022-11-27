@@ -7,9 +7,7 @@ class chess:
         self.init_pos = init_pos  # Stores the initial Position of the chess piece
         self.pos = init_pos  # Stores the current Position of the chess piece
         self.cost = cost  # Stores the cost of Chess piece
-        # self.surface = surface  #Stores the surface to blit for representing chess piece
-        # stores color of chess piece: (-1) - White, 1 - Black
-        self.color = color
+        self.color = color  # stores color of chess piece: (-1) - White, 1 - Black
         self.piece = piece  # 0 - King, 1 - Queen, 2 - Rook, 3 - Bishop, 4 - Knight, 5 - Pawn
         # stores the temporary position of chess, made to be used in Drag and Drop and legal move
         self.temp_pos = init_pos
