@@ -136,8 +136,8 @@ def movesView():
     if elemClickIndex != None and pieceClicked == True:
         for legal_pos in PIECES[elemClickIndex].legal_moves(False):
             rectangle = pygame.Surface((blocksize,blocksize))
-            rectangle.set_alpha(150)
-            rectangle.fill((200,0,0))
+            rectangle.set_alpha(200)
+            rectangle.fill((209,69,71))
             screen.blit(rectangle,(distx + legal_pos[0]*blocksize, disty + legal_pos[1]*blocksize))
         rectangle = pygame.Surface((blocksize,blocksize))
         rectangle.set_alpha(150)
