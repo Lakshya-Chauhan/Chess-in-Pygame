@@ -69,6 +69,7 @@ PIECES = [
     chess((7, 1), 1, 1, 5, 32)
 ]
 
+# Yin Yang
 
 
 def cls():
@@ -130,6 +131,18 @@ def Chessman():
         screen.blit(surfaces[PIECES[elemClickIndex].piece][PIECES[elemClickIndex].color], 
         (PIECES[elemClickIndex].temp_pos[0] - PIECES[elemClickIndex].delx, PIECES[elemClickIndex].temp_pos[1] - PIECES[elemClickIndex].dely))
 
+def movesView():
+    global elemClickIndex, pieceClicked,PIECES, distx,disty,blocksize
+    if elemClickIndex != None and pieceClicked == True:
+        for legal_pos in PIECES[elemClickIndex].legal_moves(False):
+            rectangle = pygame.Surface((blocksize,blocksize))
+            rectangle.set_alpha(150)
+            rectangle.fill((200,0,0))
+            screen.blit(rectangle,(distx + legal_pos[0]*blocksize, disty + legal_pos[1]*blocksize))
+        rectangle = pygame.Surface((blocksize,blocksize))
+        rectangle.set_alpha(150)
+        rectangle.fill((0,0,200))
+        screen.blit(rectangle,(distx + PIECES[elemClickIndex].pos[0]*blocksize, disty + PIECES[elemClickIndex].pos[1]*blocksize))
 
 running = True
 clock = pygame.time.Clock()
@@ -171,8 +184,8 @@ while running == True:
                     PIECES[elemClickIndex].temp_pos = elemPos1
                     PIECES[elemClickIndex].delx = 0
                     PIECES[elemClickIndex].dely = 0
-                    capturedNumber = [(i.number) for i in PIECES if ((i.pos == PIECES[elemClickIndex].pos) and (
-                        i.color != PIECES[elemClickIndex].color) and (i.captured == False))]
+                    capturedNumber = [(i.number) for i in PIECES if ((i.pos == PIECES[elemClickIndex].pos) and 
+                                      (i.color != PIECES[elemClickIndex].color) and (i.captured == False))]
                     if len(capturedNumber) == 1:
                         for i in range(len(PIECES)):
                             if PIECES[i].captured == False:
@@ -187,5 +200,6 @@ while running == True:
 
     # Code Here
     board()
+    movesView()
     Chessman()
     pygame.display.update()
