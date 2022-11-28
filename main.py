@@ -9,6 +9,7 @@ blocksize = 100
 pieceClicked = False
 elemClickIndex = None
 translucentOldPos = 0
+Moves = []
 surfaces = [
     [None, pygame.transform.scale(pygame.image.load("images/wK.png"), (blocksize, blocksize)),
      pygame.transform.scale(pygame.image.load("images/bK.png"), (blocksize, blocksize))],
@@ -137,12 +138,24 @@ def movesView():
         for legal_pos in PIECES[elemClickIndex].legal_moves(False):
             rectangle = pygame.Surface((blocksize,blocksize))
             rectangle.set_alpha(200)
-            rectangle.fill((209,69,71))
+            rectangle.fill((71,209,69))
             screen.blit(rectangle,(distx + legal_pos[0]*blocksize, disty + legal_pos[1]*blocksize))
         rectangle = pygame.Surface((blocksize,blocksize))
         rectangle.set_alpha(150)
-        rectangle.fill((0,0,200))
+        rectangle.fill((69,71,209))
         screen.blit(rectangle,(distx + PIECES[elemClickIndex].pos[0]*blocksize, disty + PIECES[elemClickIndex].pos[1]*blocksize))
+def lastmove():
+    global Moves, PIECES, distx, disty, blocksize
+    if len(Moves) != 0:
+        elem = chess.obj_from_num(Moves[-1][0])
+        Lastmove = pygame.Surface((blocksize,blocksize))
+        Lastmove.set_alpha(200)
+        Lastmove.fill((127,212,168))
+        screen.blit(Lastmove,(distx + Moves[-1][1][0]*blocksize, disty + Moves[-1][1][1]*blocksize))
+        Lastmove = pygame.Surface((blocksize,blocksize))
+        Lastmove.set_alpha(200)
+        Lastmove.fill((107,184,177))
+        screen.blit(Lastmove,(distx + elem.pos[0]*blocksize, disty + elem.pos[1]*blocksize))
 
 running = True
 clock = pygame.time.Clock()
@@ -180,6 +193,7 @@ while running == True:
                             ((mpos1[1]-disty)//blocksize))
                 del mpos1
                 if PIECES[elemClickIndex].legal_moves(True, elemPos1) == True:
+                    Moves.append([PIECES[elemClickIndex].number,PIECES[elemClickIndex].pos])
                     PIECES[elemClickIndex].pos = elemPos1
                     PIECES[elemClickIndex].temp_pos = elemPos1
                     PIECES[elemClickIndex].delx = 0
@@ -200,6 +214,9 @@ while running == True:
 
     # Code Here
     board()
-    movesView()
+    if elemClickIndex != None and pieceClicked == True:
+        movesView()
+    else:
+        lastmove()
     Chessman()
     pygame.display.update()
