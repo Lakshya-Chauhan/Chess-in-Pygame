@@ -33,32 +33,39 @@ class chess:
             return [tuple(i.pos) for i in chess.black if ((i.number != _except) and (i.captured == False))]
             # returns the list of all the black positions except the exception
 
+    def captured_pos(self,position):
+        pass #if any object is at that place then set it to be captured
+
     def check(colour):
         if colour == -1:
             for i in chess.white:
                 if i.piece == 0: #ie the piece is *King*
                     for elem in chess.black:
-                        if i.pos in elem.legal_moves(False,(),True):
-                            return True
+                        if i.captured == False:
+                            if i.pos in elem.legal_moves(False,(),True):
+                                return True
                     return False
         if colour == 1:
             for i in chess.black:
                 if i.piece == 0: #ie the piece is *King*
                     for elem in chess.white:
-                        if i.pos in elem.legal_moves(False,(),True):
-                            return True
+                        if i.captured == False:
+                            if i.pos in elem.legal_moves(False,(),True):
+                                return True
                     return False
 
     def attacked_pos(colour):
         positions = set()
         if colour == -1:
             for i in chess.white:
-                for pos in i.legal_moves(False,(),True):
-                    positions.add(pos)
+                if i.captured == False:
+                    for pos in i.legal_moves(False,(),True):
+                        positions.add(pos)
         else:
             for i in chess.black:
-                for pos in i.legal_moves(False,(),True):
-                    positions.add(pos)
+                if i.captured == False:
+                    for pos in i.legal_moves(False,(),True):
+                        positions.add(pos)
         return positions
 
 
@@ -76,549 +83,550 @@ class chess:
     def legal_moves(self, type: bool, position=tuple(),trial = False):
         legal_moves = set()
         terminate = False
-        if self.piece == 0:  # legal move of *King*
-            for x in range(8):
-                for y in range(8):
-                    if (abs(self.pos[0]-x) == 1) or (abs(self.pos[1]-y) == 1):
-                        if (abs(self.pos[0]-x) == abs(self.pos[1] - y)):
-                            if trial == False:
-                                if (x,y) not in chess.attacked_pos(-self.color):
-                                    if (x,y) not in chess.occupied_pos(self.color, self.number):
-                                        self.check_pos = self.pos
-                                        self.pos = (x, y)
-                                        if chess.check(self.color) == False:
+        if self.captured  == False:
+            if self.piece == 0:  # legal move of *King*
+                for x in range(8):
+                    for y in range(8):
+                        if (abs(self.pos[0]-x) == 1) or (abs(self.pos[1]-y) == 1):
+                            if (abs(self.pos[0]-x) == abs(self.pos[1] - y)):
+                                if trial == False:
+                                    if (x,y) not in chess.attacked_pos(-self.color):
+                                        if (x,y) not in chess.occupied_pos(self.color, self.number):
+                                            self.check_pos = self.pos
+                                            self.pos = (x, y)
+                                            if chess.check(self.color) == False:
+                                                self.pos = self.check_pos
+                                                legal_moves.add((x,y))
                                             self.pos = self.check_pos
-                                            legal_moves.add((x,y))
-                                        self.pos = self.check_pos
-                            else:
-                                legal_moves.add((x,y))
-                        if (self.pos[0] == x and self.pos[1] != y) or (self.pos[1] == y and self.pos[0] != x):
-                            if trial == False:
-                                if (x,y) not in chess.attacked_pos(-self.color):
-                                    if (x,y) not in chess.occupied_pos(self.color, self.number):
-                                        self.check_pos = self.pos
-                                        self.pos = (x, y)
-                                        if chess.check(self.color) == False:
+                                else:
+                                    legal_moves.add((x,y))
+                            if (self.pos[0] == x and self.pos[1] != y) or (self.pos[1] == y and self.pos[0] != x):
+                                if trial == False:
+                                    if (x,y) not in chess.attacked_pos(-self.color):
+                                        if (x,y) not in chess.occupied_pos(self.color, self.number):
+                                            self.check_pos = self.pos
+                                            self.pos = (x, y)
+                                            if chess.check(self.color) == False:
+                                                self.pos = self.check_pos
+                                                legal_moves.add((x,y))
                                             self.pos = self.check_pos
-                                            legal_moves.add((x,y))
-                                        self.pos = self.check_pos
-                            else:
-                                legal_moves.add((x,y))
-        elif self.piece == 1:  # legal move of Queen
-            for x in range(self.pos[0] - 1, -1, -1):
-                # Searching for legal moves in horizontally backward direction until a black or white piece comes in the way
-                self.check_pos = self.pos
-                self.pos = (x, self.pos[1])
-                if trial == True:
-                    self.pos = self.check_pos
-                    if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
-                        legal_moves.add((x, self.pos[1]))
-                        break
-                    elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
-                        legal_moves.add((x, self.pos[1]))
-                        break
+                                else:
+                                    legal_moves.add((x,y))
+            elif self.piece == 1:  # legal move of Queen
+                for x in range(self.pos[0] - 1, -1, -1):
+                    # Searching for legal moves in horizontally backward direction until a black or white piece comes in the way
+                    self.check_pos = self.pos
+                    self.pos = (x, self.pos[1])
+                    if trial == True:
+                        self.pos = self.check_pos
+                        if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
+                            legal_moves.add((x, self.pos[1]))
+                            break
+                        elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
+                            legal_moves.add((x, self.pos[1]))
+                            break
+                        else:
+                            legal_moves.add((x, self.pos[1]))
                     else:
-                        legal_moves.add((x, self.pos[1]))
-                else:
-                    self.pos = self.check_pos
-                    if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
-                        break
-                    elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
-                        if chess.check(self.color) == False:
-                            legal_moves.add((x,self.pos[1]))
-                        break
-                    else:
-                        if chess.check(self.color) == False:
-                            legal_moves.add((x,self.pos[1]))
+                        self.pos = self.check_pos
+                        if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
+                            break
+                        elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
+                            if chess.check(self.color) == False:
+                                legal_moves.add((x,self.pos[1]))
+                            break
+                        else:
+                            if chess.check(self.color) == False:
+                                legal_moves.add((x,self.pos[1]))
 
-            for x in range(self.pos[0] + 1, 8):
-                # Searching for legal moves in horizontally forward direction until a black or white piece comes in the way
-                self.check_pos = self.pos
-                self.pos = (x, self.pos[1])
-                if trial == True:
-                    self.pos = self.check_pos
-                    if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
-                        legal_moves.add((x, self.pos[1]))
-                        break
-                    elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
-                        legal_moves.add((x, self.pos[1]))
-                        break
+                for x in range(self.pos[0] + 1, 8):
+                    # Searching for legal moves in horizontally forward direction until a black or white piece comes in the way
+                    self.check_pos = self.pos
+                    self.pos = (x, self.pos[1])
+                    if trial == True:
+                        self.pos = self.check_pos
+                        if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
+                            legal_moves.add((x, self.pos[1]))
+                            break
+                        elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
+                            legal_moves.add((x, self.pos[1]))
+                            break
+                        else:
+                            legal_moves.add((x, self.pos[1]))
                     else:
-                        legal_moves.add((x, self.pos[1]))
-                else:
-                    self.pos = self.check_pos
-                    if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
-                        break
-                    elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
-                        if chess.check(self.color) == False:
-                            legal_moves.add((x,self.pos[1]))
-                        break
-                    else:
-                        if chess.check(self.color) == False:
-                            legal_moves.add((x,self.pos[1]))
+                        self.pos = self.check_pos
+                        if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
+                            break
+                        elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
+                            if chess.check(self.color) == False:
+                                legal_moves.add((x,self.pos[1]))
+                            break
+                        else:
+                            if chess.check(self.color) == False:
+                                legal_moves.add((x,self.pos[1]))
 
-            for y in range(self.pos[1] - 1, -1, -1):
-                # Searching for legal moves in vertically backward direction until a black or white piece comes in the way
-                self.check_pos = self.pos
-                self.pos = (self.pos[0], y)
-                if trial == True:
-                    self.pos = self.check_pos
-                    if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
-                        legal_moves.add((self.pos[0], y))
-                        break
-                    elif (self.pos[0], y) in chess.occupied_pos(-self.color):
-                        legal_moves.add((self.pos[0], y))
-                        break
-                    else:
-                        legal_moves.add((self.pos[0], y))
-                else:
-                    self.pos = self.check_pos
-                    if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
-                        break
-                    elif (self.pos[0], y) in chess.occupied_pos(-self.color):
-                        if chess.check(self.color) == False:
-                            legal_moves.add((self.pos[0], y))
-                        break
-                    else:
-                        if chess.check(self.color) == False:
-                            legal_moves.add((self.pos[0], y))
-
-
-            for y in range(self.pos[1] + 1, 8):
-                # Searching for legal moves in vertically forward direction until a black or white piece comes in the way
-                self.check_pos = self.pos
-                self.pos = (self.pos[0], y)
-                if trial == True:
-                    self.pos = self.check_pos
-                    if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
-                        legal_moves.add((self.pos[0], y))
-                        break
-                    elif (self.pos[0], y) in chess.occupied_pos(-self.color):
-                        legal_moves.add((self.pos[0], y))
-                        break
-                    else:
-                        legal_moves.add((self.pos[0], y))
-                else:
-                    self.pos = self.check_pos
-                    if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
-                        break
-                    elif (self.pos[0], y) in chess.occupied_pos(-self.color):
-                        if chess.check(self.color) == False:
-                            legal_moves.add((self.pos[0], y))
-                        break
-                    else:
-                        if chess.check(self.color) == False:
-                            legal_moves.add((self.pos[0], y))
-
-
-            for x in range(self.pos[0] - 1, -1, -1):
                 for y in range(self.pos[1] - 1, -1, -1):
-                    # Searching for legal moves in top left direction diagonally until a piece comes in the way
-                    if abs(self.pos[0] - x) == abs(self.pos[1] - y):
-                        self.check_pos = self.pos
-                        self.pos = (x, y)
-                        if trial == True:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                legal_moves.add((x, y))
-                        else:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                if terminate == True:
-                    terminate = False
-                    break
-            for x in range(self.pos[0] - 1, -1, -1):
-                for y in range(self.pos[1] + 1, 8):
-                    # Searching for legal moves in top right direction diagonally until a piece comes in the way
-                    if abs(self.pos[0] - x) == abs(self.pos[1] - y):
-                        self.check_pos = self.pos
-                        self.pos = (x, y)
-                        if trial == True:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                legal_moves.add((x, y))
-                        else:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                if terminate == True:
-                    terminate = False
-                    break
-
-            for x in range(self.pos[0] + 1, 8):
-                for y in range(self.pos[1] + 1, 8):
-                    # Searching for legal moves in bottom right direction diagonally until a piece comes in the way
-                    if abs(self.pos[0] - x) == abs(self.pos[1] - y):
-                        self.check_pos = self.pos
-                        self.pos = (x, y)
-                        if trial == True:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                legal_moves.add((x, y))
-                        else:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                if terminate == True:
-                    terminate = False
-                    break
-
-            for x in range(self.pos[0] + 1, 8):
-                for y in range(self.pos[1] - 1, -1, -1):
-                    # Searching for legal moves in bottom left direction diagonally until a piece comes in the way
-                    if abs(self.pos[0] - x) == abs(self.pos[1] - y):
-                        self.check_pos = self.pos
-                        self.pos = (x, y)
-                        if trial == True:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                legal_moves.add((x, y))
-                        else:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                if terminate == True:
-                    terminate = False
-                    break
-
-        elif self.piece == 2:  # legal move of Rook
-            for x in range(self.pos[0] - 1, -1, -1):
-                # Searching for legal moves in horizontally backward direction until a black or white piece comes in the way
-                self.check_pos = self.pos
-                self.pos = (x, self.pos[1])
-                if trial == True:
-                    self.pos = self.check_pos
-                    if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
-                        legal_moves.add((x, self.pos[1]))
-                        break
-                    elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
-                        legal_moves.add((x, self.pos[1]))
-                        break
-                    else:
-                        legal_moves.add((x, self.pos[1]))
-                else:
-                    self.pos = self.check_pos
-                    if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
-                        break
-                    elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
-                        if chess.check(self.color) == False:
-                            legal_moves.add((x,self.pos[1]))
-                        break
-                    else:
-                        if chess.check(self.color) == False:
-                            legal_moves.add((x,self.pos[1]))
-
-            for x in range(self.pos[0] + 1, 8):
-                # Searching for legal moves in horizontally forward direction until a black or white piece comes in the way
-                self.check_pos = self.pos
-                self.pos = (x, self.pos[1])
-                if trial == True:
-                    self.pos = self.check_pos
-                    if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
-                        legal_moves.add((x, self.pos[1]))
-                        break
-                    elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
-                        legal_moves.add((x, self.pos[1]))
-                        break
-                    else:
-                        legal_moves.add((x, self.pos[1]))
-                else:
-                    self.pos = self.check_pos
-                    if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
-                        break
-                    elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
-                        if chess.check(self.color) == False:
-                            legal_moves.add((x,self.pos[1]))
-                        break
-                    else:
-                        if chess.check(self.color) == False:
-                            legal_moves.add((x,self.pos[1]))
-
-            for y in range(self.pos[1] - 1, -1, -1):
-                # Searching for legal moves in vertically backward direction until a black or white piece comes in the way
-                self.check_pos = self.pos
-                self.pos = (self.pos[0], y)
-                if trial == True:
-                    self.pos = self.check_pos
-                    if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
-                        legal_moves.add((self.pos[0], y))
-                        break
-                    elif (self.pos[0], y) in chess.occupied_pos(-self.color):
-                        legal_moves.add((self.pos[0], y))
-                        break
-                    else:
-                        legal_moves.add((self.pos[0], y))
-                else:
-                    self.pos = self.check_pos
-                    if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
-                        break
-                    elif (self.pos[0], y) in chess.occupied_pos(-self.color):
-                        if chess.check(self.color) == False:
+                    # Searching for legal moves in vertically backward direction until a black or white piece comes in the way
+                    self.check_pos = self.pos
+                    self.pos = (self.pos[0], y)
+                    if trial == True:
+                        self.pos = self.check_pos
+                        if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
                             legal_moves.add((self.pos[0], y))
-                        break
-                    else:
-                        if chess.check(self.color) == False:
+                            break
+                        elif (self.pos[0], y) in chess.occupied_pos(-self.color):
                             legal_moves.add((self.pos[0], y))
-
-
-            for y in range(self.pos[1] + 1, 8):
-                # Searching for legal moves in vertically forward direction until a black or white piece comes in the way
-                self.check_pos = self.pos
-                self.pos = (self.pos[0], y)
-                if trial == True:
-                    self.pos = self.check_pos
-                    if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
-                        legal_moves.add((self.pos[0], y))
-                        break
-                    elif (self.pos[0], y) in chess.occupied_pos(-self.color):
-                        legal_moves.add((self.pos[0], y))
-                        break
-                    else:
-                        legal_moves.add((self.pos[0], y))
-                else:
-                    self.pos = self.check_pos
-                    if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
-                        break
-                    elif (self.pos[0], y) in chess.occupied_pos(-self.color):
-                        if chess.check(self.color) == False:
-                            legal_moves.add((self.pos[0], y))
-                        break
-                    else:
-                        if chess.check(self.color) == False:
-                            legal_moves.add((self.pos[0], y))
-
-
-        elif self.piece == 3:  # legal move of Bishop
-            for x in range(self.pos[0] - 1, -1, -1):
-                for y in range(self.pos[1] - 1, -1, -1):
-                    # Searching for legal moves in top left direction diagonally until a piece comes in the way
-                    if abs(self.pos[0] - x) == abs(self.pos[1] - y):
-                        self.check_pos = self.pos
-                        self.pos = (x, y)
-                        if trial == True:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                legal_moves.add((x, y))
+                            break
                         else:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                if terminate == True:
-                    terminate = False
-                    break
-            for x in range(self.pos[0] - 1, -1, -1):
+                            legal_moves.add((self.pos[0], y))
+                    else:
+                        self.pos = self.check_pos
+                        if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
+                            break
+                        elif (self.pos[0], y) in chess.occupied_pos(-self.color):
+                            if chess.check(self.color) == False:
+                                legal_moves.add((self.pos[0], y))
+                            break
+                        else:
+                            if chess.check(self.color) == False:
+                                legal_moves.add((self.pos[0], y))
+
+
                 for y in range(self.pos[1] + 1, 8):
-                    # Searching for legal moves in top right direction diagonally until a piece comes in the way
-                    if abs(self.pos[0] - x) == abs(self.pos[1] - y):
-                        self.check_pos = self.pos
-                        self.pos = (x, y)
-                        if trial == True:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                legal_moves.add((x, y))
+                    # Searching for legal moves in vertically forward direction until a black or white piece comes in the way
+                    self.check_pos = self.pos
+                    self.pos = (self.pos[0], y)
+                    if trial == True:
+                        self.pos = self.check_pos
+                        if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
+                            legal_moves.add((self.pos[0], y))
+                            break
+                        elif (self.pos[0], y) in chess.occupied_pos(-self.color):
+                            legal_moves.add((self.pos[0], y))
+                            break
                         else:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                if terminate == True:
-                    terminate = False
-                    break
-
-            for x in range(self.pos[0] + 1, 8):
-                for y in range(self.pos[1] + 1, 8):
-                    # Searching for legal moves in bottom right direction diagonally until a piece comes in the way
-                    if abs(self.pos[0] - x) == abs(self.pos[1] - y):
-                        self.check_pos = self.pos
-                        self.pos = (x, y)
-                        if trial == True:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                legal_moves.add((x, y))
+                            legal_moves.add((self.pos[0], y))
+                    else:
+                        self.pos = self.check_pos
+                        if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
+                            break
+                        elif (self.pos[0], y) in chess.occupied_pos(-self.color):
+                            if chess.check(self.color) == False:
+                                legal_moves.add((self.pos[0], y))
+                            break
                         else:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                if terminate == True:
-                    terminate = False
-                    break
+                            if chess.check(self.color) == False:
+                                legal_moves.add((self.pos[0], y))
 
-            for x in range(self.pos[0] + 1, 8):
-                for y in range(self.pos[1] - 1, -1, -1):
-                    # Searching for legal moves in bottom left direction diagonally until a piece comes in the way
-                    if abs(self.pos[0] - x) == abs(self.pos[1] - y):
-                        self.check_pos = self.pos
-                        self.pos = (x, y)
-                        if trial == True:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                legal_moves.add((x, y))
-                        else:
-                            self.pos = self.check_pos
-                            if (x, y) in chess.occupied_pos(self.color, self.number):
-                                terminate = True
-                                break
-                            elif (x, y) in chess.occupied_pos(-self.color):
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                                terminate = True
-                                break
-                            else:
-                                if chess.check(self.color) == False:
-                                    legal_moves.add((x, y))
-                if terminate == True:
-                    terminate = False
-                    break
 
-        elif self.piece == 4:  # legal move of Knight
-            for x in range(8):
-                for y in range(8):
-                    if abs(self.pos[0] - x) in [1, 2] and abs(self.pos[1] - y) in [1, 2]:
-                        # logic for finding legal move for Knight
-                        if abs(self.pos[0] - x) != abs(self.pos[1] - y):
-                            # exception of logic
+                for x in range(self.pos[0] - 1, -1, -1):
+                    for y in range(self.pos[1] - 1, -1, -1):
+                        # Searching for legal moves in top left direction diagonally until a piece comes in the way
+                        if abs(self.pos[0] - x) == abs(self.pos[1] - y):
+                            self.check_pos = self.pos
+                            self.pos = (x, y)
                             if trial == True:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
                                     legal_moves.add((x, y))
                             else:
-                                self.check_pos = self.pos
-                                self.pos = (x, y)
-                                if chess.check(self.color) == False:
-                                    self.pos = self.check_pos
-                                    if (x, y) not in chess.occupied_pos(self.color, self.number):
-                                        legal_moves.add((x, y))
                                 self.pos = self.check_pos
-                            
-        elif self.piece == 5:  # legal move of Pawn
-            pass
-        else:
-            return False
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                    if terminate == True:
+                        terminate = False
+                        break
+                for x in range(self.pos[0] - 1, -1, -1):
+                    for y in range(self.pos[1] + 1, 8):
+                        # Searching for legal moves in top right direction diagonally until a piece comes in the way
+                        if abs(self.pos[0] - x) == abs(self.pos[1] - y):
+                            self.check_pos = self.pos
+                            self.pos = (x, y)
+                            if trial == True:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    legal_moves.add((x, y))
+                            else:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                    if terminate == True:
+                        terminate = False
+                        break
+
+                for x in range(self.pos[0] + 1, 8):
+                    for y in range(self.pos[1] + 1, 8):
+                        # Searching for legal moves in bottom right direction diagonally until a piece comes in the way
+                        if abs(self.pos[0] - x) == abs(self.pos[1] - y):
+                            self.check_pos = self.pos
+                            self.pos = (x, y)
+                            if trial == True:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    legal_moves.add((x, y))
+                            else:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                    if terminate == True:
+                        terminate = False
+                        break
+
+                for x in range(self.pos[0] + 1, 8):
+                    for y in range(self.pos[1] - 1, -1, -1):
+                        # Searching for legal moves in bottom left direction diagonally until a piece comes in the way
+                        if abs(self.pos[0] - x) == abs(self.pos[1] - y):
+                            self.check_pos = self.pos
+                            self.pos = (x, y)
+                            if trial == True:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    legal_moves.add((x, y))
+                            else:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                    if terminate == True:
+                        terminate = False
+                        break
+
+            elif self.piece == 2:  # legal move of Rook
+                for x in range(self.pos[0] - 1, -1, -1):
+                    # Searching for legal moves in horizontally backward direction until a black or white piece comes in the way
+                    self.check_pos = self.pos
+                    self.pos = (x, self.pos[1])
+                    if trial == True:
+                        self.pos = self.check_pos
+                        if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
+                            legal_moves.add((x, self.pos[1]))
+                            break
+                        elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
+                            legal_moves.add((x, self.pos[1]))
+                            break
+                        else:
+                            legal_moves.add((x, self.pos[1]))
+                    else:
+                        self.pos = self.check_pos
+                        if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
+                            break
+                        elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
+                            if chess.check(self.color) == False:
+                                legal_moves.add((x,self.pos[1]))
+                            break
+                        else:
+                            if chess.check(self.color) == False:
+                                legal_moves.add((x,self.pos[1]))
+
+                for x in range(self.pos[0] + 1, 8):
+                    # Searching for legal moves in horizontally forward direction until a black or white piece comes in the way
+                    self.check_pos = self.pos
+                    self.pos = (x, self.pos[1])
+                    if trial == True:
+                        self.pos = self.check_pos
+                        if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
+                            legal_moves.add((x, self.pos[1]))
+                            break
+                        elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
+                            legal_moves.add((x, self.pos[1]))
+                            break
+                        else:
+                            legal_moves.add((x, self.pos[1]))
+                    else:
+                        self.pos = self.check_pos
+                        if (x, self.pos[1]) in chess.occupied_pos(self.color, self.number):
+                            break
+                        elif (x, self.pos[1]) in chess.occupied_pos(-self.color):
+                            if chess.check(self.color) == False:
+                                legal_moves.add((x,self.pos[1]))
+                            break
+                        else:
+                            if chess.check(self.color) == False:
+                                legal_moves.add((x,self.pos[1]))
+
+                for y in range(self.pos[1] - 1, -1, -1):
+                    # Searching for legal moves in vertically backward direction until a black or white piece comes in the way
+                    self.check_pos = self.pos
+                    self.pos = (self.pos[0], y)
+                    if trial == True:
+                        self.pos = self.check_pos
+                        if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
+                            legal_moves.add((self.pos[0], y))
+                            break
+                        elif (self.pos[0], y) in chess.occupied_pos(-self.color):
+                            legal_moves.add((self.pos[0], y))
+                            break
+                        else:
+                            legal_moves.add((self.pos[0], y))
+                    else:
+                        self.pos = self.check_pos
+                        if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
+                            break
+                        elif (self.pos[0], y) in chess.occupied_pos(-self.color):
+                            if chess.check(self.color) == False:
+                                legal_moves.add((self.pos[0], y))
+                            break
+                        else:
+                            if chess.check(self.color) == False:
+                                legal_moves.add((self.pos[0], y))
+
+
+                for y in range(self.pos[1] + 1, 8):
+                    # Searching for legal moves in vertically forward direction until a black or white piece comes in the way
+                    self.check_pos = self.pos
+                    self.pos = (self.pos[0], y)
+                    if trial == True:
+                        self.pos = self.check_pos
+                        if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
+                            legal_moves.add((self.pos[0], y))
+                            break
+                        elif (self.pos[0], y) in chess.occupied_pos(-self.color):
+                            legal_moves.add((self.pos[0], y))
+                            break
+                        else:
+                            legal_moves.add((self.pos[0], y))
+                    else:
+                        self.pos = self.check_pos
+                        if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
+                            break
+                        elif (self.pos[0], y) in chess.occupied_pos(-self.color):
+                            if chess.check(self.color) == False:
+                                legal_moves.add((self.pos[0], y))
+                            break
+                        else:
+                            if chess.check(self.color) == False:
+                                legal_moves.add((self.pos[0], y))
+
+
+            elif self.piece == 3:  # legal move of Bishop
+                for x in range(self.pos[0] - 1, -1, -1):
+                    for y in range(self.pos[1] - 1, -1, -1):
+                        # Searching for legal moves in top left direction diagonally until a piece comes in the way
+                        if abs(self.pos[0] - x) == abs(self.pos[1] - y):
+                            self.check_pos = self.pos
+                            self.pos = (x, y)
+                            if trial == True:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    legal_moves.add((x, y))
+                            else:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                    if terminate == True:
+                        terminate = False
+                        break
+                for x in range(self.pos[0] - 1, -1, -1):
+                    for y in range(self.pos[1] + 1, 8):
+                        # Searching for legal moves in top right direction diagonally until a piece comes in the way
+                        if abs(self.pos[0] - x) == abs(self.pos[1] - y):
+                            self.check_pos = self.pos
+                            self.pos = (x, y)
+                            if trial == True:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    legal_moves.add((x, y))
+                            else:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                    if terminate == True:
+                        terminate = False
+                        break
+
+                for x in range(self.pos[0] + 1, 8):
+                    for y in range(self.pos[1] + 1, 8):
+                        # Searching for legal moves in bottom right direction diagonally until a piece comes in the way
+                        if abs(self.pos[0] - x) == abs(self.pos[1] - y):
+                            self.check_pos = self.pos
+                            self.pos = (x, y)
+                            if trial == True:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    legal_moves.add((x, y))
+                            else:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                    if terminate == True:
+                        terminate = False
+                        break
+
+                for x in range(self.pos[0] + 1, 8):
+                    for y in range(self.pos[1] - 1, -1, -1):
+                        # Searching for legal moves in bottom left direction diagonally until a piece comes in the way
+                        if abs(self.pos[0] - x) == abs(self.pos[1] - y):
+                            self.check_pos = self.pos
+                            self.pos = (x, y)
+                            if trial == True:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    legal_moves.add((x, y))
+                            else:
+                                self.pos = self.check_pos
+                                if (x, y) in chess.occupied_pos(self.color, self.number):
+                                    terminate = True
+                                    break
+                                elif (x, y) in chess.occupied_pos(-self.color):
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                                    terminate = True
+                                    break
+                                else:
+                                    if chess.check(self.color) == False:
+                                        legal_moves.add((x, y))
+                    if terminate == True:
+                        terminate = False
+                        break
+
+            elif self.piece == 4:  # legal move of Knight
+                for x in range(8):
+                    for y in range(8):
+                        if abs(self.pos[0] - x) in [1, 2] and abs(self.pos[1] - y) in [1, 2]:
+                            # logic for finding legal move for Knight
+                            if abs(self.pos[0] - x) != abs(self.pos[1] - y):
+                                # exception of logic
+                                if trial == True:
+                                        legal_moves.add((x, y))
+                                else:
+                                    self.check_pos = self.pos
+                                    self.pos = (x, y)
+                                    if chess.check(self.color) == False:
+                                        self.pos = self.check_pos
+                                        if (x, y) not in chess.occupied_pos(self.color, self.number):
+                                            legal_moves.add((x, y))
+                                    self.pos = self.check_pos
+
+            elif self.piece == 5:  # legal move of Pawn
+                pass
+            else:
+                return False
 
         if type == True:  # checks if the value of type is True
             # return true if the given position is a legal move else return false
