@@ -10,6 +10,7 @@ pieceClicked = False
 elemClickIndex = None
 translucentOldPos = 0
 Moves = []
+elemPos2 = tuple()
 surfaces = [
     [None, pygame.transform.scale(pygame.image.load("images/wK.png"), (blocksize, blocksize)),
      pygame.transform.scale(pygame.image.load("images/bK.png"), (blocksize, blocksize))],
@@ -133,13 +134,17 @@ def Chessman():
         (PIECES[elemClickIndex].temp_pos[0] - PIECES[elemClickIndex].delx, PIECES[elemClickIndex].temp_pos[1] - PIECES[elemClickIndex].dely))
 
 def movesView():
-    global elemClickIndex, pieceClicked,PIECES, distx,disty,blocksize
+    global elemClickIndex, pieceClicked,PIECES, distx,disty,blocksize, elemPos2
     if elemClickIndex != None and pieceClicked == True:
         for legal_pos in PIECES[elemClickIndex].legal_moves(False):
             rectangle = pygame.Surface((blocksize,blocksize))
             rectangle.set_alpha(200)
-            rectangle.fill((71,209,69))
-            screen.blit(rectangle,(distx + legal_pos[0]*blocksize, disty + legal_pos[1]*blocksize))
+            if legal_pos == elemPos2:
+                rectangle.fill((71,214,187))
+                screen.blit(rectangle,(distx + legal_pos[0]*blocksize, disty + legal_pos[1]*blocksize))
+            else:
+                rectangle.fill((71,209,69))
+                screen.blit(rectangle,(distx + legal_pos[0]*blocksize, disty + legal_pos[1]*blocksize))
         rectangle = pygame.Surface((blocksize,blocksize))
         rectangle.set_alpha(150)
         rectangle.fill((69,71,209))
@@ -149,12 +154,12 @@ def lastmove():
     if len(Moves) != 0:
         elem = chess.obj_from_num(Moves[-1][0])
         Lastmove = pygame.Surface((blocksize,blocksize))
-        Lastmove.set_alpha(200)
-        Lastmove.fill((127,212,168))
+        Lastmove.set_alpha(150)
+        Lastmove.fill((235,225,76))
         screen.blit(Lastmove,(distx + Moves[-1][1][0]*blocksize, disty + Moves[-1][1][1]*blocksize))
         Lastmove = pygame.Surface((blocksize,blocksize))
-        Lastmove.set_alpha(200)
-        Lastmove.fill((107,184,177))
+        Lastmove.set_alpha(150)
+        Lastmove.fill((212,203,69))
         screen.blit(Lastmove,(distx + elem.pos[0]*blocksize, disty + elem.pos[1]*blocksize))
 
 running = True
@@ -184,7 +189,11 @@ while running == True:
 
         if event.type == pygame.MOUSEMOTION:
             if pieceClicked == True and elemClickIndex != None:
-                PIECES[elemClickIndex].temp_pos = pygame.mouse.get_pos()
+                mpos2 = pygame.mouse.get_pos()
+                PIECES[elemClickIndex].temp_pos = mpos2
+                elemPos2 = (((mpos2[0]-distx)//blocksize),
+                            ((mpos2[1]-disty)//blocksize))
+                del mpos2
 
         if event.type == pygame.MOUSEBUTTONUP:
             if pieceClicked == True and elemClickIndex != None:
