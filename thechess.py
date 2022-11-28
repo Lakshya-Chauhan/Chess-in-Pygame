@@ -29,12 +29,41 @@ class chess:
             return [tuple(i.pos) for i in chess.black if ((i.number != _except) and (i.captured == False))]
             # returns the list of all the black positions except the exception
 
+    def attacked_pos(colour):
+        return set()    #in progress
+
+    def opponents(self):
+        if self.color == 1:
+            return chess.white
+        else:
+            return chess.black
+
+    #returns the object with the serial number given
+    def obj_from_num(num):
+        for i in chess.white:
+            if i.number == num:
+                return i
+        for i in chess.black:
+            if i.number == num:
+                return i
+
+
     # if type is True, it means that it is needed to check if the given position is true, else it means to return a set of legal moves
     def legal_moves(self, type: bool, position=tuple()):
         legal_moves = set()
         terminate = False
         if self.piece == 0:  # legal move of *King*
-            pass
+            for x in range(8):
+                for y in range(8):
+                    if (abs(self.pos[0]-x) == 1) or (abs(self.pos[1]-y) == 1):
+                        if (abs(self.pos[0]-x) == abs(self.pos[1] - y)):
+                            if (x,y) not in chess.attacked_pos(-self.color):
+                                if (x,y) not in chess.occupied_pos(self.color, self.number):
+                                    legal_moves.add((x,y))
+                        if (self.pos[0] == x and self.pos[1] != y) or (self.pos[1] == y and self.pos[0] != x):
+                            if (x,y) not in chess.attacked_pos(-self.color):
+                                if (x,y) not in chess.occupied_pos(self.color, self.number):
+                                    legal_moves.add((x,y))
         elif self.piece == 1:  # legal move of Queen
             for x in range(self.pos[0] - 1, -1, -1):
                 for y in range(self.pos[1] - 1, -1, -1):
@@ -253,8 +282,8 @@ class chess:
                     break
 
         elif self.piece == 4:  # legal move of Knight
-            for x in range(0, 8):
-                for y in range(0, 8):
+            for x in range(8):
+                for y in range(8):
                     if abs(self.pos[0] - x) in [1, 2] and abs(self.pos[1] - y) in [1, 2]:
                         # logic for finding legal move for Knight
                         if abs(self.pos[0] - x) != abs(self.pos[1] - y):
