@@ -1,7 +1,3 @@
-#to add a logic that if a sliding piece is attacking the king we can push a piece between both to stop the check as the one done for knigh means
-#adding self.check_pos = self.pos then checking for any check and later self.pos = self.check_pos
-
-#also adding that if a piece attacking king is captured and the king has no more attackers then the move is legal
 class chess:
     white = []
     black = []
