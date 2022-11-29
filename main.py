@@ -162,6 +162,22 @@ def lastmove():
         Lastmove.set_alpha(150)
         Lastmove.fill((212,203,69))
         screen.blit(Lastmove,(distx + elem.pos[0]*blocksize, disty + elem.pos[1]*blocksize))
+    if chess.check(-1) == True:
+        for i in PIECES:
+            if i.color == -1:
+                if i.piece == 0:
+                    Lastmove = pygame.Surface((blocksize,blocksize))
+                    Lastmove.set_alpha(200)
+                    Lastmove.fill((200,50,50))
+                    screen.blit(Lastmove, (distx + i.pos[0]*blocksize, disty + i.pos[1]*blocksize))
+    if chess.check(1) == True:
+        for i in PIECES:
+            if i.color == 1:
+                if i.piece == 0:
+                    Lastmove = pygame.Surface((blocksize,blocksize))
+                    Lastmove.set_alpha(200)
+                    Lastmove.fill((200,50,50))
+                    screen.blit(Lastmove, (distx + i.pos[0]*blocksize, disty + i.pos[1]*blocksize))
 
 running = True
 clock = pygame.time.Clock()
