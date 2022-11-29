@@ -6,6 +6,7 @@ FoNtprint = 0
 distx = 0
 disty = 0
 blocksize = 100
+mouseDown = False
 pieceClicked = False
 elemClickIndex = None
 translucentOldPos = 0
@@ -170,22 +171,24 @@ while running == True:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            mpos = pygame.mouse.get_pos()
-            pieceClicked = False
-            if mpos[0] > distx and mpos[0] < distx+blocksize*8 and mpos[1] > disty and mpos[1] < disty+blocksize*8:
-                pieceClicked = True
-                elemPos = (((mpos[0]-distx)//blocksize),
-                           ((mpos[1]-disty)//blocksize))
+            if mouseDown == False:
+                mouseDown = True
+                mpos = pygame.mouse.get_pos()
+                pieceClicked = False
+                if mpos[0] > distx and mpos[0] < distx+blocksize*8 and mpos[1] > disty and mpos[1] < disty+blocksize*8:
+                    pieceClicked = True
+                    elemPos = (((mpos[0]-distx)//blocksize),
+                               ((mpos[1]-disty)//blocksize))
 
-                for elemIndex in range(len(PIECES)):
-                    if PIECES[elemIndex].captured == False:
-                        if PIECES[elemIndex].pos == elemPos:
-                            elemClickIndex = elemIndex
-                            PIECES[elemIndex].temp_pos = mpos
-                            PIECES[elemIndex].delx = mpos[0] - \
-                                (PIECES[elemIndex].pos[0]*blocksize + distx)
-                            PIECES[elemIndex].dely = mpos[1] - \
-                                (PIECES[elemIndex].pos[1]*blocksize + disty)
+                    for elemIndex in range(len(PIECES)):
+                        if PIECES[elemIndex].captured == False:
+                            if PIECES[elemIndex].pos == elemPos:
+                                elemClickIndex = elemIndex
+                                PIECES[elemIndex].temp_pos = mpos
+                                PIECES[elemIndex].delx = mpos[0] - \
+                                    (PIECES[elemIndex].pos[0]*blocksize + distx)
+                                PIECES[elemIndex].dely = mpos[1] - \
+                                    (PIECES[elemIndex].pos[1]*blocksize + disty)
 
         if event.type == pygame.MOUSEMOTION:
             if pieceClicked == True and elemClickIndex != None:
@@ -197,6 +200,7 @@ while running == True:
 
         if event.type == pygame.MOUSEBUTTONUP:
             if pieceClicked == True and elemClickIndex != None:
+                mouseDown = False
                 mpos1 = pygame.mouse.get_pos()
                 elemPos1 = (((mpos1[0]-distx)//blocksize),
                             ((mpos1[1]-disty)//blocksize))
