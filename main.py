@@ -6,7 +6,7 @@ FoNtprint = 0
 distx = 0
 disty = 0
 blocksize = 100
-mouseDown = False
+mouseDown = 2
 pieceClicked = False
 elemClickIndex = None
 translucentOldPos = 0
@@ -166,18 +166,22 @@ def lastmove():
         for i in PIECES:
             if i.color == -1:
                 if i.piece == 0:
-                    Lastmove = pygame.Surface((blocksize,blocksize))
-                    Lastmove.set_alpha(200)
-                    Lastmove.fill((200,50,50))
-                    screen.blit(Lastmove, (distx + i.pos[0]*blocksize, disty + i.pos[1]*blocksize))
+                    for a in range(blocksize,int(blocksize/2),-1):
+                        Lastmove = pygame.Surface((a,a))
+                        Lastmove.set_alpha(200-a)
+                        Lastmove.fill((200,50,50))
+                        screen.blit(Lastmove, (distx + int(blocksize/2) - int(a/2) + i.pos[0]*blocksize, disty + int(blocksize/2) - int(a/2) + i.pos[1]*blocksize))
+                    break
     if chess.check(1) == True:
         for i in PIECES:
             if i.color == 1:
                 if i.piece == 0:
-                    Lastmove = pygame.Surface((blocksize,blocksize))
-                    Lastmove.set_alpha(200)
-                    Lastmove.fill((200,50,50))
-                    screen.blit(Lastmove, (distx + i.pos[0]*blocksize, disty + i.pos[1]*blocksize))
+                    for a in range(blocksize,int(blocksize/2),-1):
+                        Lastmove = pygame.Surface((a,a))
+                        Lastmove.set_alpha(200-a)
+                        Lastmove.fill((200,50,50))
+                        screen.blit(Lastmove, (distx + int(blocksize/2) - int(a/2) + i.pos[0]*blocksize, disty + int(blocksize/2) - int(a/2) + i.pos[1]*blocksize))
+                    break
 
 running = True
 clock = pygame.time.Clock()
@@ -187,8 +191,9 @@ while running == True:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if mouseDown == False:
-                mouseDown = True
+            mouseDown += 1
+            if mouseDown%3 == 0:
+                mouseDown += 1
                 mpos = pygame.mouse.get_pos()
                 pieceClicked = False
                 if mpos[0] > distx and mpos[0] < distx+blocksize*8 and mpos[1] > disty and mpos[1] < disty+blocksize*8:
@@ -216,7 +221,10 @@ while running == True:
 
         if event.type == pygame.MOUSEBUTTONUP:
             if pieceClicked == True and elemClickIndex != None:
-                mouseDown = False
+                if mouseDown%3 == 1:
+                    mouseDown += 1
+                elif mouseDown%3 == 0:
+                    mouseDown += 2
                 mpos1 = pygame.mouse.get_pos()
                 elemPos1 = (((mpos1[0]-distx)//blocksize),
                             ((mpos1[1]-disty)//blocksize))
