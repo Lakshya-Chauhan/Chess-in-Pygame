@@ -15,6 +15,7 @@ class chess:
         self.number = number    #stores the serial number of the chess piece ( different for every piece )
         self.delx = 0   #distance of the cursor position in x direction from self.pos
         self.dely = 0   #distance of the cursor position in y direction from self.pos
+        self.moves = 0 #number of moves played by the piece
 
         if self.color == -1:
             chess.white.append(self)
@@ -52,7 +53,7 @@ class chess:
     def check(colour):
         if colour == -1:
             for i in chess.white:
-                if i.piece == 0: #ie the piece is *King*
+                if i.piece == 0 and i.captured == False: #ie the piece is *King*
                     for elem in chess.black:
                         if i.captured == False and elem.capture == False and elem.captured == False:
                             if i.pos in elem.legal_moves(False,(),True):
@@ -60,7 +61,7 @@ class chess:
                     return False
         if colour == 1:
             for i in chess.black:
-                if i.piece == 0: #ie the piece is *King*
+                if i.piece == 0 and i.captured == False: #ie the piece is *King*
                     for elem in chess.white:
                         if elem.captured == False and elem.capture == False and elem.captured == False:
                             if i.pos in elem.legal_moves(False,(),True):
@@ -812,7 +813,52 @@ class chess:
                                     self.pos = self.check_pos
 
             elif self.piece == 5:  # legal move of Pawn
-                pass
+                if trial == True:
+                    legal_moves.add((self.pos[0]+1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1])))))
+                    legal_moves.add((self.pos[0]-1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1])))))
+                else:
+                    self.check_pos = self.pos
+                    self.pos = (self.pos[0]-1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1]))))
+                    self.captured_pos(tuple(self.pos))
+                    if chess.check(self.color) == False:
+                        if self.pos in chess.occupied_pos(-self.color):
+                            self.captured_pos(tuple(self.pos),True)
+                            self.pos = self.check_pos
+                            legal_moves.add((self.pos[0]-1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1])))))
+                    self.pos = self.check_pos
+                    self.captured_pos(tuple(self.pos),True)
+                    
+                    self.check_pos = self.pos
+                    self.pos = (self.pos[0]+1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1]))))
+                    self.captured_pos(tuple(self.pos))
+                    if chess.check(self.color) == False:
+                        if self.pos in chess.occupied_pos(-self.color):
+                            self.captured_pos(tuple(self.pos),True)
+                            self.pos = self.check_pos
+                            legal_moves.add((self.pos[0]+1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1])))))
+                    self.pos = self.check_pos
+                    self.captured_pos(tuple(self.pos),True)
+
+                    self.check_pos = self.pos
+                    self.pos = (self.pos[0], self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1]))))
+                    if chess.check(self.color) == False:
+                        if (self.pos not in chess.occupied_pos(-self.color)) and (self.pos not in chess.occupied_pos(self.color,self.number)):
+                            legal_moves.add(self.pos)
+                            self.pos = self.check_pos
+                        self.pos = self.check_pos
+                    self.pos = self.check_pos
+
+                    
+                    self.check_pos = self.pos
+                    self.pos = (self.pos[0], self.pos[1]+int((4-self.init_pos[1])*2/(abs(4-self.init_pos[1]))))
+                    if chess.check(self.color) == False:
+                        if (self.pos not in chess.occupied_pos(-self.color)) and (self.pos not in chess.occupied_pos(self.color,self.number)) and self.moves == 0:
+                            if ((self.check_pos[0], self.check_pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1])))) not in chess.occupied_pos(-self.color)) and ((self.check_pos[0], self.check_pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1])))) not in chess.occupied_pos(self.color,self.number)):
+                                legal_moves.add(self.pos)
+                                self.pos = self.check_pos
+                            self.pos = self.check_pos
+                        self.pos = self.check_pos
+                    self.pos = self.check_pos
             else:
                 return False
 
