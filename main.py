@@ -164,7 +164,7 @@ def lastmove():
         screen.blit(Lastmove,(distx + elem.pos[0]*blocksize, disty + elem.pos[1]*blocksize))
     if chess.check(-1) == True:
         for i in PIECES:
-            if i.color == -1:
+            if i.color == -1 and i.captured == False:
                 if i.piece == 0:
                     for a in range(blocksize,int(blocksize/2),-1):
                         Lastmove = pygame.Surface((a,a))
@@ -174,7 +174,7 @@ def lastmove():
                     break
     if chess.check(1) == True:
         for i in PIECES:
-            if i.color == 1:
+            if i.color == 1 and i.captured == False:
                 if i.piece == 0:
                     for a in range(blocksize,int(blocksize/2),-1):
                         Lastmove = pygame.Surface((a,a))
@@ -235,6 +235,7 @@ while running == True:
                     PIECES[elemClickIndex].temp_pos = elemPos1
                     PIECES[elemClickIndex].delx = 0
                     PIECES[elemClickIndex].dely = 0
+                    PIECES[elemClickIndex].moves += 1
                     capturedNumber = [(i.number) for i in PIECES if ((i.pos == PIECES[elemClickIndex].pos) and 
                                       (i.color != PIECES[elemClickIndex].color) and (i.captured == False))]
                     if len(capturedNumber) == 1:
