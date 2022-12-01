@@ -1,6 +1,7 @@
 class chess:
     white = []
     black = []
+    Moves = []
     def __init__(self, init_pos: list, cost: int, color: int,
                  piece: int, number: int):
         self.init_pos = init_pos  # Stores the initial Position of the chess piece
@@ -16,6 +17,8 @@ class chess:
         self.delx = 0   #distance of the cursor position in x direction from self.pos
         self.dely = 0   #distance of the cursor position in y direction from self.pos
         self.moves = 0 #number of moves played by the piece
+        self.captures = 0 #number of times the piece have captured a piece
+        self.en_passant = [False,False] #if the move would be en passant it would store the position
 
         if self.color == -1:
             chess.white.append(self)
@@ -27,9 +30,11 @@ class chess:
         if color == -1:
             return [tuple(i.pos) for i in chess.white if ((i.number != _except) and (i.captured == False))]
             # returns the list of all the white positions except the exception
-        else:
+        elif color == +1:
             return [tuple(i.pos) for i in chess.black if ((i.number != _except) and (i.captured == False))]
             # returns the list of all the black positions except the exception
+        elif color == 0:
+            return ([tuple(i.pos) for i in chess.white if ((i.number != _except) and (i.captured == False))]+[tuple(i.pos) for i in chess.black if ((i.number != _except) and (i.captured == False))])
 
     def captured_pos(self,position,type = False):#if any object is at that place then set it to be captured
         if self.color == -1:
@@ -91,7 +96,13 @@ class chess:
         for i in chess.black:
             if i.number == num:
                 return i
-
+    def obj_from_pos(position):
+        for i in chess.white:
+            if i.pos == position:
+                return i
+        for i in chess.black:
+            if i.pos == position:
+                return i
 
     # if type is True, it means that it is needed to check if the given position is true, else it means to return a set of legal moves
     def legal_moves(self, type: bool, position=tuple(),trial = False):
@@ -842,7 +853,7 @@ class chess:
                     self.check_pos = self.pos
                     self.pos = (self.pos[0], self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1]))))
                     if chess.check(self.color) == False:
-                        if (self.pos not in chess.occupied_pos(-self.color)) and (self.pos not in chess.occupied_pos(self.color,self.number)):
+                        if self.pos not in chess.occupied_pos(0,self.number):
                             legal_moves.add(self.pos)
                             self.pos = self.check_pos
                         self.pos = self.check_pos
@@ -859,6 +870,39 @@ class chess:
                             self.pos = self.check_pos
                         self.pos = self.check_pos
                     self.pos = self.check_pos
+
+                    if len(chess.Moves) > 0:
+                        if (self.pos[0]+1,self.pos[1]) in chess.occupied_pos(-self.color,self.number):
+                            otherPiece = chess.obj_from_pos((self.pos[0]+1,self.pos[1]))
+                            if otherPiece.piece == 5 and otherPiece.color == -self.color:
+                                if (self.pos[0]+1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1])))) not in chess.occupied_pos(0,self.number):
+                                    if otherPiece.captures == 0 and self.captures == 0 and otherPiece.moves == 1 and self.moves == 2:
+                                        if chess.Moves[-1] == [otherPiece.number, otherPiece.init_pos, otherPiece.pos]:
+                                            self.check_pos = self.pos
+                                            self.pos = (self.pos[0]+1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1]))))
+                                            otherPiece.capture = True
+                                            if chess.check(self.color) == False:
+                                                self.pos = self.check_pos
+                                                legal_moves.add((self.pos[0]+1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1])))))
+                                                self.en_passant = [otherPiece.number, (self.pos[0]+1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1]))))]
+                                            otherPiece.capture = False
+                        if (self.pos[0]-1,self.pos[1]) in chess.occupied_pos(-self.color,self.number):
+                            otherPiece = chess.obj_from_pos((self.pos[0]-1,self.pos[1]))
+                            if otherPiece.piece == 5 and otherPiece.color == -self.color:
+                                if (self.pos[0]-1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1])))) not in chess.occupied_pos(0,self.number):
+                                    if otherPiece.captures == 0 and self.captures == 0 and otherPiece.moves == 1 and self.moves == 2:
+                                        if chess.Moves[-1] == [otherPiece.number, otherPiece.init_pos, otherPiece.pos]:
+                                            self.check_pos = self.pos
+                                            self.pos = (self.pos[0]-1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1]))))
+                                            otherPiece.capture = True
+                                            if chess.check(self.color) == False:
+                                                self.pos = self.check_pos
+                                                legal_moves.add((self.pos[0]-1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1])))))
+                                                self.en_passant = [otherPiece.number, (self.pos[0]-1,self.pos[1]+int((4-self.init_pos[1])/(abs(4-self.init_pos[1]))))]
+                                            otherPiece.capture = False
+                            
+                        
+
             else:
                 return False
 
