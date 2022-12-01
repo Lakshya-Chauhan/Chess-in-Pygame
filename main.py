@@ -10,7 +10,6 @@ mouseDown = 2
 pieceClicked = False
 elemClickIndex = None
 translucentOldPos = 0
-Moves = []
 elemPos2 = tuple()
 surfaces = [
     [None, pygame.transform.scale(pygame.image.load("images/wK.png"), (blocksize, blocksize)),
@@ -151,13 +150,13 @@ def movesView():
         rectangle.fill((69,71,209))
         screen.blit(rectangle,(distx + PIECES[elemClickIndex].pos[0]*blocksize, disty + PIECES[elemClickIndex].pos[1]*blocksize))
 def lastmove():
-    global Moves, PIECES, distx, disty, blocksize
-    if len(Moves) != 0:
-        elem = chess.obj_from_num(Moves[-1][0])
+    global PIECES, distx, disty, blocksize
+    if len(chess.Moves) != 0:
+        elem = chess.obj_from_num(chess.Moves[-1][0])
         Lastmove = pygame.Surface((blocksize,blocksize))
         Lastmove.set_alpha(150)
         Lastmove.fill((235,225,76))
-        screen.blit(Lastmove,(distx + Moves[-1][1][0]*blocksize, disty + Moves[-1][1][1]*blocksize))
+        screen.blit(Lastmove,(distx + chess.Moves[-1][1][0]*blocksize, disty + chess.Moves[-1][1][1]*blocksize))
         Lastmove = pygame.Surface((blocksize,blocksize))
         Lastmove.set_alpha(150)
         Lastmove.fill((212,203,69))
@@ -230,12 +229,17 @@ while running == True:
                             ((mpos1[1]-disty)//blocksize))
                 del mpos1
                 if PIECES[elemClickIndex].legal_moves(True, elemPos1) == True:
-                    Moves.append([PIECES[elemClickIndex].number,PIECES[elemClickIndex].pos])
+                    chess.Moves.append([PIECES[elemClickIndex].number,PIECES[elemClickIndex].pos, elemPos1])
                     PIECES[elemClickIndex].pos = elemPos1
                     PIECES[elemClickIndex].temp_pos = elemPos1
                     PIECES[elemClickIndex].delx = 0
                     PIECES[elemClickIndex].dely = 0
                     PIECES[elemClickIndex].moves += 1
+                    if PIECES[elemClickIndex].piece == 5:
+                        if PIECES[elemClickIndex].pos[1] in [0,7]:
+                            PIECES[elemClickIndex].piece = 1
+                            PIECES[elemClickIndex].cost = 9
+
                     capturedNumber = [(i.number) for i in PIECES if ((i.pos == PIECES[elemClickIndex].pos) and 
                                       (i.color != PIECES[elemClickIndex].color) and (i.captured == False))]
                     if len(capturedNumber) == 1:
@@ -243,6 +247,14 @@ while running == True:
                             if PIECES[i].captured == False:
                                 if PIECES[i].number == capturedNumber[0]:
                                     PIECES[i].captured = True
+                                    PIECES[elemClickIndex].captures += 1
+
+                    elif PIECES[elemClickIndex].pos == PIECES[elemClickIndex].en_passant[1]:
+                        for captured_elem in PIECES:
+                            if captured_elem.number == PIECES[elemClickIndex].en_passant[0]:
+                                captured_elem.captured = True
+                                PIECES[elemClickIndex].en_passant = [False,False]
+                                break
                     pieceClicked = False
                     elemClickIndex = None
                 else:
