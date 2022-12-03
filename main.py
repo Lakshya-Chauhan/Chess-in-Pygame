@@ -3,13 +3,16 @@ import pygame
 from os import system
 FoNt = 0
 FoNtprint = 0
+chance = 1
 distx = 0
 disty = 0
 blocksize = 100
 mouseDown = 2
+screen_size = [800, 800]
 pieceClicked = False
 elemClickIndex = None
 translucentOldPos = 0
+check_mate = False
 elemPos2 = tuple()
 surfaces = [
     [None, pygame.transform.scale(pygame.image.load("images/wK.png"), (blocksize, blocksize)),
@@ -80,17 +83,17 @@ def cls():
 
 def font(a: str, b=18):
     global FoNt
-    FoNt = pygame.font.SysFont(a, b)
+    FoNt = pygame.font.SysFont(a, b, True)
 
 
 def printpy(x: str, a=(100, 400), y=(128, 128, 128)):
     global FoNt, FoNtprint
     FoNtprint = FoNt.render(x, True, y)
-    screen.blit(FoNtprint, a)
+    screen.blit(FoNtprint, ((int(a[0]/2)-int((FoNtprint.get_width())/2)), (int(a[1]/2)-int((FoNtprint.get_height())/2))))
 
 
 pygame.init()
-screen = pygame.display.set_mode((800, 800))
+screen = pygame.display.set_mode((screen_size[0], screen_size[1]))
 #icon = pygame.image.load('')
 pygame.display.set_caption("Chess")
 # pygame.display.set_icon(icon)
@@ -125,62 +128,125 @@ def Chessman():
                 screen.blit(surfaces[i.piece][i.color],
                             (distx + i.temp_pos[0]*blocksize, disty + i.temp_pos[1]*blocksize))
             else:
-                translucentOldPos = pygame.transform.scale(surfaces[i.piece][i.color],(blocksize,blocksize))
+                translucentOldPos = pygame.transform.scale(
+                    surfaces[i.piece][i.color], (blocksize, blocksize))
                 translucentOldPos.set_alpha(150)
                 screen.blit(translucentOldPos,
                             (distx + i.pos[0]*blocksize, disty + i.pos[1]*blocksize))
     if elemClickIndex != None:
-        screen.blit(surfaces[PIECES[elemClickIndex].piece][PIECES[elemClickIndex].color], 
-        (PIECES[elemClickIndex].temp_pos[0] - PIECES[elemClickIndex].delx, PIECES[elemClickIndex].temp_pos[1] - PIECES[elemClickIndex].dely))
+        screen.blit(surfaces[PIECES[elemClickIndex].piece][PIECES[elemClickIndex].color],
+                    (PIECES[elemClickIndex].temp_pos[0] - PIECES[elemClickIndex].delx, PIECES[elemClickIndex].temp_pos[1] - PIECES[elemClickIndex].dely))
+
 
 def movesView():
-    global elemClickIndex, pieceClicked,PIECES, distx,disty,blocksize, elemPos2
+    global elemClickIndex, pieceClicked, PIECES, distx, disty, blocksize, elemPos2
     if elemClickIndex != None and pieceClicked == True:
         for legal_pos in PIECES[elemClickIndex].legal_moves(False):
-            rectangle = pygame.Surface((blocksize,blocksize))
+            rectangle = pygame.Surface((blocksize, blocksize))
             rectangle.set_alpha(200)
             if legal_pos == elemPos2:
-                rectangle.fill((71,214,187))
-                screen.blit(rectangle,(distx + legal_pos[0]*blocksize, disty + legal_pos[1]*blocksize))
+                rectangle.fill((71, 214, 187))
+                screen.blit(
+                    rectangle, (distx + legal_pos[0]*blocksize, disty + legal_pos[1]*blocksize))
             else:
-                rectangle.fill((71,209,69))
-                screen.blit(rectangle,(distx + legal_pos[0]*blocksize, disty + legal_pos[1]*blocksize))
-        rectangle = pygame.Surface((blocksize,blocksize))
+                rectangle.fill((71, 209, 69))
+                screen.blit(
+                    rectangle, (distx + legal_pos[0]*blocksize, disty + legal_pos[1]*blocksize))
+        rectangle = pygame.Surface((blocksize, blocksize))
         rectangle.set_alpha(150)
-        rectangle.fill((69,71,209))
-        screen.blit(rectangle,(distx + PIECES[elemClickIndex].pos[0]*blocksize, disty + PIECES[elemClickIndex].pos[1]*blocksize))
+        rectangle.fill((69, 71, 209))
+        screen.blit(rectangle, (distx + PIECES[elemClickIndex].pos[0]
+                    * blocksize, disty + PIECES[elemClickIndex].pos[1]*blocksize))
+
+
 def lastmove():
-    global PIECES, distx, disty, blocksize
+    global PIECES, distx, disty, blocksize, check_mate, screen_size
+    font("Calibri",100)
     if len(chess.Moves) != 0:
         elem = chess.obj_from_num(chess.Moves[-1][0])
-        Lastmove = pygame.Surface((blocksize,blocksize))
+        Lastmove = pygame.Surface((blocksize, blocksize))
         Lastmove.set_alpha(150)
-        Lastmove.fill((235,225,76))
-        screen.blit(Lastmove,(distx + chess.Moves[-1][1][0]*blocksize, disty + chess.Moves[-1][1][1]*blocksize))
-        Lastmove = pygame.Surface((blocksize,blocksize))
+        Lastmove.fill((235, 225, 76))
+        screen.blit(
+            Lastmove, (distx + chess.Moves[-1][1][0]*blocksize, disty + chess.Moves[-1][1][1]*blocksize))
+        Lastmove = pygame.Surface((blocksize, blocksize))
         Lastmove.set_alpha(150)
-        Lastmove.fill((212,203,69))
-        screen.blit(Lastmove,(distx + elem.pos[0]*blocksize, disty + elem.pos[1]*blocksize))
+        Lastmove.fill((212, 203, 69))
+        screen.blit(
+            Lastmove, (distx + elem.pos[0]*blocksize, disty + elem.pos[1]*blocksize))
     if chess.check(-1) == True:
         for i in PIECES:
             if i.color == -1 and i.captured == False:
                 if i.piece == 0:
-                    for a in range(blocksize,int(blocksize/2),-1):
-                        Lastmove = pygame.Surface((a,a))
+                    for a in range(blocksize, int(blocksize/2), -1):
+                        Lastmove = pygame.Surface((a, a))
                         Lastmove.set_alpha(200-a)
-                        Lastmove.fill((200,50,50))
-                        screen.blit(Lastmove, (distx + int(blocksize/2) - int(a/2) + i.pos[0]*blocksize, disty + int(blocksize/2) - int(a/2) + i.pos[1]*blocksize))
+                        Lastmove.fill((200, 50, 50))
+                        screen.blit(Lastmove, (distx + int(blocksize/2) - int(
+                            a/2) + i.pos[0]*blocksize, disty + int(blocksize/2) - int(a/2) + i.pos[1]*blocksize))
+                    if len(chess.total_legal_moves(i.color)) == 0:
+                        check_mate = True
+                        
+                        for x in range(blocksize*8+distx,0,-int(blocksize/2.5)):
+                            for y in range(blocksize*8+disty,0,-int(blocksize/2.5)):
+                                Lastmove = pygame.Surface((x, y))
+                                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/((blocksize*8+distx)*(blocksize*8+disty)))*15))%256))
+                                Lastmove.fill((255,255,255))
+                                screen.blit(Lastmove,((round(screen_size[0]/2) - round(x/2) ), (round(screen_size[1]/2) - round(y/2) ) ) )
+                                printpy("Check Mate!",screen_size,(28,82,156))
+                    elif (chess.total_cost(i.color) in [3, 0]) and (chess.total_cost(-i.color) in [3, 0]):
+                        check_mate = 1
+                        
+                        for x in range(blocksize*8+distx,0,-int(blocksize/2.5)):
+                            for y in range(blocksize*8+disty,0,-int(blocksize/2.5)):
+                                Lastmove = pygame.Surface((x, y))
+                                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/((blocksize*8+distx)*(blocksize*8+disty)))*15))%256))
+                                Lastmove.fill((255,255,255))
+                                screen.blit(Lastmove,((round(screen_size[0]/2) - round(x/2) ), (round(screen_size[1]/2) - round(y/2) ) ) )
+                                printpy("Draw!",screen_size,(28,82,156))
                     break
-    if chess.check(1) == True:
+    elif chess.check(1) == True:
         for i in PIECES:
             if i.color == 1 and i.captured == False:
                 if i.piece == 0:
-                    for a in range(blocksize,int(blocksize/2),-1):
-                        Lastmove = pygame.Surface((a,a))
+                    for a in range(blocksize, int(blocksize/2), -1):
+                        Lastmove = pygame.Surface((a, a))
                         Lastmove.set_alpha(200-a)
-                        Lastmove.fill((200,50,50))
-                        screen.blit(Lastmove, (distx + int(blocksize/2) - int(a/2) + i.pos[0]*blocksize, disty + int(blocksize/2) - int(a/2) + i.pos[1]*blocksize))
+                        Lastmove.fill((200, 50, 50))
+                        screen.blit(Lastmove, (distx + int(blocksize/2) - int(
+                            a/2) + i.pos[0]*blocksize, disty + int(blocksize/2) - int(a/2) + i.pos[1]*blocksize))
+                    if len(chess.total_legal_moves(i.color)) == 0:
+                        check_mate = True
+                        
+                        for x in range(blocksize*8+distx,0,-int(blocksize/2.5)):
+                            for y in range(blocksize*8+disty,0,-int(blocksize/2.5)):
+                                Lastmove = pygame.Surface((x, y))
+                                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/((blocksize*8+distx)*(blocksize*8+disty)))*15))%256))
+                                Lastmove.fill((255,255,255))
+                                screen.blit(Lastmove,((round(screen_size[0]/2) - round(x/2) ), (round(screen_size[1]/2) - round(y/2) ) ) )
+                                printpy("Check Mate!",screen_size,(28,82,156))
+                    elif (chess.total_cost(i.color) in [3, 0]) and (chess.total_cost(-i.color) in [3, 0]):
+                        check_mate = 1
+                        
+                        for x in range(blocksize*8+distx,0,-int(blocksize/2.5)):
+                            for y in range(blocksize*8+disty,0,-int(blocksize/2.5)):
+                                Lastmove = pygame.Surface((x, y))
+                                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/((blocksize*8+distx)*(blocksize*8+disty)))*15))%256))
+                                Lastmove.fill((255,255,255))
+                                screen.blit(Lastmove,((round(screen_size[0]/2) - round(x/2) ), (round(screen_size[1]/2) - round(y/2) ) ) )
+                                printpy("Draw!",screen_size,(28,82,156))
                     break
+    elif (len(chess.total_legal_moves(-1)) == 0) or (len(chess.total_legal_moves(1)) == 0) or ((chess.total_cost(1) in [3, 0]) and (chess.total_cost(-1) in [3, 0])):
+        check_mate = 1
+        for x in range(blocksize*8+distx,0,-int(blocksize/2.5)):
+            for y in range(blocksize*8+disty,0,-int(blocksize/2.5)):
+                Lastmove = pygame.Surface((x, y))
+                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/((blocksize*8+distx)*(blocksize*8+disty)))*15))%256))
+                Lastmove.fill((255,255,255))
+                screen.blit(Lastmove,((round(screen_size[0]/2) - round(x/2) ), (round(screen_size[1]/2) - round(y/2) ) ) )
+                printpy("Draw!",screen_size,(28,82,156))
+
+
 
 running = True
 clock = pygame.time.Clock()
@@ -191,7 +257,7 @@ while running == True:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouseDown += 1
-            if mouseDown%3 == 0:
+            if mouseDown % 3 == 0 and check_mate == False:
                 mouseDown += 1
                 mpos = pygame.mouse.get_pos()
                 pieceClicked = False
@@ -202,13 +268,15 @@ while running == True:
 
                     for elemIndex in range(len(PIECES)):
                         if PIECES[elemIndex].captured == False:
-                            if PIECES[elemIndex].pos == elemPos:
+                            if PIECES[elemIndex].pos == elemPos and PIECES[elemIndex].color == chance:
                                 elemClickIndex = elemIndex
                                 PIECES[elemIndex].temp_pos = mpos
                                 PIECES[elemIndex].delx = mpos[0] - \
-                                    (PIECES[elemIndex].pos[0]*blocksize + distx)
+                                    (PIECES[elemIndex].pos[0]
+                                     * blocksize + distx)
                                 PIECES[elemIndex].dely = mpos[1] - \
-                                    (PIECES[elemIndex].pos[1]*blocksize + disty)
+                                    (PIECES[elemIndex].pos[1]
+                                     * blocksize + disty)
 
         if event.type == pygame.MOUSEMOTION:
             if pieceClicked == True and elemClickIndex != None:
@@ -220,27 +288,29 @@ while running == True:
 
         if event.type == pygame.MOUSEBUTTONUP:
             if pieceClicked == True and elemClickIndex != None:
-                if mouseDown%3 == 1:
+                if mouseDown % 3 == 1:
                     mouseDown += 1
-                elif mouseDown%3 == 0:
+                elif mouseDown % 3 == 0:
                     mouseDown += 2
                 mpos1 = pygame.mouse.get_pos()
                 elemPos1 = (((mpos1[0]-distx)//blocksize),
                             ((mpos1[1]-disty)//blocksize))
                 del mpos1
-                if PIECES[elemClickIndex].legal_moves(True, elemPos1) == True:
-                    chess.Moves.append([PIECES[elemClickIndex].number,PIECES[elemClickIndex].pos, elemPos1])
+                if PIECES[elemClickIndex].legal_moves(True, elemPos1) == True and PIECES[elemClickIndex].color == chance:
+                    chess.Moves.append(
+                        [PIECES[elemClickIndex].number, PIECES[elemClickIndex].pos, elemPos1])
+                    chance = -chance
                     PIECES[elemClickIndex].pos = elemPos1
                     PIECES[elemClickIndex].temp_pos = elemPos1
                     PIECES[elemClickIndex].delx = 0
                     PIECES[elemClickIndex].dely = 0
                     PIECES[elemClickIndex].moves += 1
                     if PIECES[elemClickIndex].piece == 5:
-                        if PIECES[elemClickIndex].pos[1] in [0,7]:
+                        if PIECES[elemClickIndex].pos[1] in [0, 7]:
                             PIECES[elemClickIndex].piece = 1
                             PIECES[elemClickIndex].cost = 9
 
-                    capturedNumber = [(i.number) for i in PIECES if ((i.pos == PIECES[elemClickIndex].pos) and 
+                    capturedNumber = [(i.number) for i in PIECES if ((i.pos == PIECES[elemClickIndex].pos) and
                                       (i.color != PIECES[elemClickIndex].color) and (i.captured == False))]
                     if len(capturedNumber) == 1:
                         for i in range(len(PIECES)):
@@ -253,7 +323,8 @@ while running == True:
                         for captured_elem in PIECES:
                             if captured_elem.number == PIECES[elemClickIndex].en_passant[0]:
                                 captured_elem.captured = True
-                                PIECES[elemClickIndex].en_passant = [False,False]
+                                PIECES[elemClickIndex].en_passant = [
+                                    False, False]
                                 break
                     pieceClicked = False
                     elemClickIndex = None
@@ -263,10 +334,15 @@ while running == True:
                     elemClickIndex = None
 
     # Code Here
-    board()
-    if elemClickIndex != None and pieceClicked == True:
-        movesView()
+    if check_mate == False:
+        board()
+        if elemClickIndex != None and pieceClicked == True:
+            movesView()
+        else:
+            lastmove()
+        Chessman()
     else:
+        board()
+        Chessman()
         lastmove()
-    Chessman()
     pygame.display.update()
