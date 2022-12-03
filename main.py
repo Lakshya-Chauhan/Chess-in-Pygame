@@ -89,7 +89,8 @@ def font(a: str, b=18):
 def printpy(x: str, a=(100, 400), y=(128, 128, 128)):
     global FoNt, FoNtprint
     FoNtprint = FoNt.render(x, True, y)
-    screen.blit(FoNtprint, ((int(a[0]/2)-int((FoNtprint.get_width())/2)), (int(a[1]/2)-int((FoNtprint.get_height())/2))))
+    screen.blit(FoNtprint, ((int(a[0]/2)-int((FoNtprint.get_width())/2)),
+                (int(a[1]/2)-int((FoNtprint.get_height())/2))))
 
 
 pygame.init()
@@ -161,7 +162,7 @@ def movesView():
 
 def lastmove():
     global PIECES, distx, disty, blocksize, check_mate, screen_size
-    font("Calibri",100)
+    font("Calibri", 100)
     if len(chess.Moves) != 0:
         elem = chess.obj_from_num(chess.Moves[-1][0])
         Lastmove = pygame.Surface((blocksize, blocksize))
@@ -186,24 +187,29 @@ def lastmove():
                             a/2) + i.pos[0]*blocksize, disty + int(blocksize/2) - int(a/2) + i.pos[1]*blocksize))
                     if len(chess.total_legal_moves(i.color)) == 0:
                         check_mate = True
-                        
-                        for x in range(blocksize*8+distx,0,-int(blocksize/2.5)):
-                            for y in range(blocksize*8+disty,0,-int(blocksize/2.5)):
+
+                        for x in range(blocksize*8+distx, 0, -int(blocksize/2.5)):
+                            for y in range(blocksize*8+disty, 0, -int(blocksize/2.5)):
                                 Lastmove = pygame.Surface((x, y))
-                                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/((blocksize*8+distx)*(blocksize*8+disty)))*15))%256))
-                                Lastmove.fill((255,255,255))
-                                screen.blit(Lastmove,((round(screen_size[0]/2) - round(x/2) ), (round(screen_size[1]/2) - round(y/2) ) ) )
-                                printpy("Check Mate!",screen_size,(28,82,156))
+                                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/(
+                                    (blocksize*8+distx)*(blocksize*8+disty)))*15)) % 256))
+                                Lastmove.fill((255, 255, 255))
+                                screen.blit(Lastmove, ((
+                                    round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
+                                printpy("Check Mate!",
+                                        screen_size, (28, 82, 156))
                     elif (chess.total_cost(i.color) in [3, 0]) and (chess.total_cost(-i.color) in [3, 0]):
                         check_mate = 1
-                        
-                        for x in range(blocksize*8+distx,0,-int(blocksize/2.5)):
-                            for y in range(blocksize*8+disty,0,-int(blocksize/2.5)):
+
+                        for x in range(blocksize*8+distx, 0, -int(blocksize/2.5)):
+                            for y in range(blocksize*8+disty, 0, -int(blocksize/2.5)):
                                 Lastmove = pygame.Surface((x, y))
-                                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/((blocksize*8+distx)*(blocksize*8+disty)))*15))%256))
-                                Lastmove.fill((255,255,255))
-                                screen.blit(Lastmove,((round(screen_size[0]/2) - round(x/2) ), (round(screen_size[1]/2) - round(y/2) ) ) )
-                                printpy("Draw!",screen_size,(28,82,156))
+                                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/(
+                                    (blocksize*8+distx)*(blocksize*8+disty)))*15)) % 256))
+                                Lastmove.fill((255, 255, 255))
+                                screen.blit(Lastmove, ((
+                                    round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
+                                printpy("Draw!", screen_size, (28, 82, 156))
                     break
     elif chess.check(1) == True:
         for i in PIECES:
@@ -217,35 +223,41 @@ def lastmove():
                             a/2) + i.pos[0]*blocksize, disty + int(blocksize/2) - int(a/2) + i.pos[1]*blocksize))
                     if len(chess.total_legal_moves(i.color)) == 0:
                         check_mate = True
-                        
-                        for x in range(blocksize*8+distx,0,-int(blocksize/2.5)):
-                            for y in range(blocksize*8+disty,0,-int(blocksize/2.5)):
+
+                        for x in range(blocksize*8+distx, 0, -int(blocksize/2.5)):
+                            for y in range(blocksize*8+disty, 0, -int(blocksize/2.5)):
                                 Lastmove = pygame.Surface((x, y))
-                                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/((blocksize*8+distx)*(blocksize*8+disty)))*15))%256))
-                                Lastmove.fill((255,255,255))
-                                screen.blit(Lastmove,((round(screen_size[0]/2) - round(x/2) ), (round(screen_size[1]/2) - round(y/2) ) ) )
-                                printpy("Check Mate!",screen_size,(28,82,156))
+                                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/(
+                                    (blocksize*8+distx)*(blocksize*8+disty)))*15)) % 256))
+                                Lastmove.fill((255, 255, 255))
+                                screen.blit(Lastmove, ((
+                                    round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
+                                printpy("Check Mate!",
+                                        screen_size, (28, 82, 156))
                     elif (chess.total_cost(i.color) in [3, 0]) and (chess.total_cost(-i.color) in [3, 0]):
                         check_mate = 1
-                        
-                        for x in range(blocksize*8+distx,0,-int(blocksize/2.5)):
-                            for y in range(blocksize*8+disty,0,-int(blocksize/2.5)):
+
+                        for x in range(blocksize*8+distx, 0, -int(blocksize/2.5)):
+                            for y in range(blocksize*8+disty, 0, -int(blocksize/2.5)):
                                 Lastmove = pygame.Surface((x, y))
-                                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/((blocksize*8+distx)*(blocksize*8+disty)))*15))%256))
-                                Lastmove.fill((255,255,255))
-                                screen.blit(Lastmove,((round(screen_size[0]/2) - round(x/2) ), (round(screen_size[1]/2) - round(y/2) ) ) )
-                                printpy("Draw!",screen_size,(28,82,156))
+                                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/(
+                                    (blocksize*8+distx)*(blocksize*8+disty)))*15)) % 256))
+                                Lastmove.fill((255, 255, 255))
+                                screen.blit(Lastmove, ((
+                                    round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
+                                printpy("Draw!", screen_size, (28, 82, 156))
                     break
     elif (len(chess.total_legal_moves(-1)) == 0) or (len(chess.total_legal_moves(1)) == 0) or ((chess.total_cost(1) in [3, 0]) and (chess.total_cost(-1) in [3, 0])):
         check_mate = 1
-        for x in range(blocksize*8+distx,0,-int(blocksize/2.5)):
-            for y in range(blocksize*8+disty,0,-int(blocksize/2.5)):
+        for x in range(blocksize*8+distx, 0, -int(blocksize/2.5)):
+            for y in range(blocksize*8+disty, 0, -int(blocksize/2.5)):
                 Lastmove = pygame.Surface((x, y))
-                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/((blocksize*8+distx)*(blocksize*8+disty)))*15))%256))
-                Lastmove.fill((255,255,255))
-                screen.blit(Lastmove,((round(screen_size[0]/2) - round(x/2) ), (round(screen_size[1]/2) - round(y/2) ) ) )
-                printpy("Draw!",screen_size,(28,82,156))
-
+                Lastmove.set_alpha(((int(((((blocksize*8+distx)*(blocksize*8+disty))-x*y)/(
+                    (blocksize*8+distx)*(blocksize*8+disty)))*15)) % 256))
+                Lastmove.fill((255, 255, 255))
+                screen.blit(Lastmove, ((
+                    round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
+                printpy("Draw!", screen_size, (28, 82, 156))
 
 
 running = True
