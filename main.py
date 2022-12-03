@@ -163,7 +163,7 @@ def movesView():
 def lastmove():
     global PIECES, distx, disty, blocksize, check_mate, screen_size
     font("Calibri", 100)
-    if len(chess.Moves) != 0:
+    if len(chess.Moves) != 0 and check_mate == False:
         elem = chess.obj_from_num(chess.Moves[-1][0])
         Lastmove = pygame.Surface((blocksize, blocksize))
         Lastmove.set_alpha(150)
@@ -179,12 +179,13 @@ def lastmove():
         for i in PIECES:
             if i.color == -1 and i.captured == False:
                 if i.piece == 0:
-                    for a in range(blocksize, int(blocksize/2), -1):
-                        Lastmove = pygame.Surface((a, a))
-                        Lastmove.set_alpha(200-a)
-                        Lastmove.fill((200, 50, 50))
-                        screen.blit(Lastmove, (distx + int(blocksize/2) - int(
-                            a/2) + i.pos[0]*blocksize, disty + int(blocksize/2) - int(a/2) + i.pos[1]*blocksize))
+                    if check_mate == False:
+                        for a in range(blocksize, int(blocksize/2), -1):
+                            Lastmove = pygame.Surface((a, a))
+                            Lastmove.set_alpha(200-a)
+                            Lastmove.fill((200, 50, 50))
+                            screen.blit(Lastmove, (distx + int(blocksize/2) - int(
+                                a/2) + i.pos[0]*blocksize, disty + int(blocksize/2) - int(a/2) + i.pos[1]*blocksize))
                     if len(chess.total_legal_moves(i.color)) == 0:
                         check_mate = True
 
@@ -215,12 +216,13 @@ def lastmove():
         for i in PIECES:
             if i.color == 1 and i.captured == False:
                 if i.piece == 0:
-                    for a in range(blocksize, int(blocksize/2), -1):
-                        Lastmove = pygame.Surface((a, a))
-                        Lastmove.set_alpha(200-a)
-                        Lastmove.fill((200, 50, 50))
-                        screen.blit(Lastmove, (distx + int(blocksize/2) - int(
-                            a/2) + i.pos[0]*blocksize, disty + int(blocksize/2) - int(a/2) + i.pos[1]*blocksize))
+                    if check_mate == False:
+                        for a in range(blocksize, int(blocksize/2), -1):
+                            Lastmove = pygame.Surface((a, a))
+                            Lastmove.set_alpha(200-a)
+                            Lastmove.fill((200, 50, 50))
+                            screen.blit(Lastmove, (distx + int(blocksize/2) - int(
+                                a/2) + i.pos[0]*blocksize, disty + int(blocksize/2) - int(a/2) + i.pos[1]*blocksize))
                     if len(chess.total_legal_moves(i.color)) == 0:
                         check_mate = True
 
