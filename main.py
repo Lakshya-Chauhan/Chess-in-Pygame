@@ -180,7 +180,7 @@ def lastmove():
             if i.color == -1 and i.captured == False:
                 if i.piece == 0:
                     if check_mate == False:
-                        for a in range(blocksize, int(blocksize/2), -1):
+                        for a in range(blocksize, int(blocksize/2), -int(blocksize/15)-1):
                             Lastmove = pygame.Surface((a, a))
                             Lastmove.set_alpha(200-a)
                             Lastmove.fill((200, 50, 50))
@@ -217,7 +217,7 @@ def lastmove():
             if i.color == 1 and i.captured == False:
                 if i.piece == 0:
                     if check_mate == False:
-                        for a in range(blocksize, int(blocksize/2), -1):
+                        for a in range(blocksize, int(blocksize/2), -int(blocksize/15)-1):
                             Lastmove = pygame.Surface((a, a))
                             Lastmove.set_alpha(200-a)
                             Lastmove.fill((200, 50, 50))
