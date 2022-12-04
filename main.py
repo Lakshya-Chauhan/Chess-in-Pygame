@@ -3,6 +3,7 @@ import pygame
 from os import system
 FoNt = 0
 FoNtprint = 0
+old_chance = 0
 chance = 1
 distx = 0
 disty = 0
@@ -197,8 +198,13 @@ def lastmove():
                                 Lastmove.fill((255, 255, 255))
                                 screen.blit(Lastmove, ((
                                     round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
-                                printpy("Check Mate!",
-                                        screen_size, (28, 82, 156))
+                        printpy("Check Mate!",
+                                screen_size, (28, 82, 156))
+                        font("Calibri",40)
+                        if i.color == -1:
+                            printpy("White Wins",(screen_size[0],screen_size[1]+200),(28, 82, 156))
+                        else:
+                            printpy("Black Wins",(screen_size[0],screen_size[1]+200),(28, 82, 156))
                     elif (chess.total_cost(i.color) in [3, 0]) and (chess.total_cost(-i.color) in [3, 0]):
                         check_mate = 1
 
@@ -210,7 +216,7 @@ def lastmove():
                                 Lastmove.fill((255, 255, 255))
                                 screen.blit(Lastmove, ((
                                     round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
-                                printpy("Draw!", screen_size, (28, 82, 156))
+                        printpy("Draw!", screen_size, (28, 82, 156))
                     break
     elif chess.check(1) == True:
         for i in PIECES:
@@ -234,8 +240,13 @@ def lastmove():
                                 Lastmove.fill((255, 255, 255))
                                 screen.blit(Lastmove, ((
                                     round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
-                                printpy("Check Mate!",
-                                        screen_size, (28, 82, 156))
+                        printpy("Check Mate!",
+                                screen_size, (28, 82, 156))
+                        font("Calibri",40)
+                        if i.color == -1:
+                            printpy("White Wins",(screen_size[0],screen_size[1]+200),(28, 82, 156))
+                        else:
+                            printpy("Black Wins",(screen_size[0],screen_size[1]+200),(28, 82, 156))
                     elif (chess.total_cost(i.color) in [3, 0]) and (chess.total_cost(-i.color) in [3, 0]):
                         check_mate = 1
 
@@ -247,7 +258,7 @@ def lastmove():
                                 Lastmove.fill((255, 255, 255))
                                 screen.blit(Lastmove, ((
                                     round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
-                                printpy("Draw!", screen_size, (28, 82, 156))
+                        printpy("Draw!", screen_size, (28, 82, 156))
                     break
     elif (len(chess.total_legal_moves(-1)) == 0) or (len(chess.total_legal_moves(1)) == 0) or ((chess.total_cost(1) in [3, 0]) and (chess.total_cost(-1) in [3, 0])):
         check_mate = 1
@@ -259,7 +270,7 @@ def lastmove():
                 Lastmove.fill((255, 255, 255))
                 screen.blit(Lastmove, ((
                     round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
-                printpy("Draw!", screen_size, (28, 82, 156))
+        printpy("Draw!", screen_size, (28, 82, 156))
 
 
 running = True
@@ -348,6 +359,15 @@ while running == True:
                     elemClickIndex = None
 
     # Code Here
+    if old_chance != chance:
+        old_chance = chance
+        for i in PIECES:
+            i.pos = ((7-i.pos[0]),(7-i.pos[1]))
+            i.init_pos = ((7-i.init_pos[0]),(7-i.init_pos[1]))
+            i.temp_pos = ((7-i.temp_pos[0]),(7-i.temp_pos[1]))
+        if len(chess.Moves) > 0:
+            chess.Moves[-1][2] = ((7-chess.Moves[-1][2][0]),(7-chess.Moves[-1][2][1]))
+            chess.Moves[-1][1] = ((7-chess.Moves[-1][1][0]),(7-chess.Moves[-1][1][1]))
     if check_mate == False:
         board()
         if elemClickIndex != None and pieceClicked == True:
