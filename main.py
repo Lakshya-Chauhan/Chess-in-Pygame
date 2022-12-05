@@ -19,6 +19,30 @@ elemClickIndex = None
 translucentOldPos = 0
 check_mate = False
 elemPos2 = tuple()
+
+#images from :-
+#https://github.com/lichess-org/lila/issues/3411
+
+surfaces_HighQuality = [
+    [None, pygame.image.load("images/wK.png"),
+     pygame.image.load("images/bK.png")],
+
+    [None, pygame.image.load("images/wQ.png"),
+     pygame.image.load("images/bQ.png")],
+
+    [None, pygame.image.load("images/wR.png"),
+     pygame.image.load("images/bR.png")],
+
+    [None, pygame.image.load("images/wB.png"),
+     pygame.image.load("images/bB.png")],
+
+    [None, pygame.image.load("images/wN.png"),
+     pygame.image.load("images/bN.png")],
+
+    [None, pygame.image.load("images/wP.png"),
+     pygame.image.load("images/bP.png")]
+]
+
 surfaces = [
     [None, pygame.transform.scale(pygame.image.load("images/wK.png"), (blocksize, blocksize)),
      pygame.transform.scale(pygame.image.load("images/bK.png"), (blocksize, blocksize))],
@@ -112,17 +136,17 @@ def board():
         for y in range(8):
             if x % 2 == 0:
                 if y % 2 == 0:
-                    pygame.draw.rect(screen, (242, 232, 168), pygame.Rect(
+                    pygame.draw.rect(screen, (243, 242, 205), pygame.Rect(
                         distx + x*blocksize, disty + y*blocksize, blocksize, blocksize))
                 else:
-                    pygame.draw.rect(screen, (125, 70, 70), pygame.Rect(
+                    pygame.draw.rect(screen, (118, 150, 85), pygame.Rect(
                         distx + x*blocksize, disty + y*blocksize, blocksize, blocksize))
             else:
                 if y % 2 == 0:
-                    pygame.draw.rect(screen, (125, 70, 70), pygame.Rect(
+                    pygame.draw.rect(screen, (118, 150, 85), pygame.Rect(
                         distx + x*blocksize, disty + y*blocksize, blocksize, blocksize))
                 else:
-                    pygame.draw.rect(screen, (242, 232, 168), pygame.Rect(
+                    pygame.draw.rect(screen, (243, 242, 205), pygame.Rect(
                         distx + x*blocksize, disty + y*blocksize, blocksize, blocksize))
 
 
@@ -145,12 +169,12 @@ def Chessman():
             mouseDownFirstTime = False
 
         if magnification < 130:
-            magnified_image = pygame.transform.scale(surfaces[PIECES[elemClickIndex].piece][PIECES[elemClickIndex].color],(blocksize*magnification/100,blocksize*magnification/100))
+            magnified_image = pygame.transform.scale(surfaces_HighQuality[PIECES[elemClickIndex].piece][PIECES[elemClickIndex].color],(blocksize*magnification/100,blocksize*magnification/100))
             screen.blit(magnified_image,
                         (PIECES[elemClickIndex].temp_pos[0] - PIECES[elemClickIndex].delx*magnification/100, PIECES[elemClickIndex].temp_pos[1] - PIECES[elemClickIndex].dely*magnification/100))
             magnification+= 7
         else:
-            magnified_image = pygame.transform.scale(surfaces[PIECES[elemClickIndex].piece][PIECES[elemClickIndex].color],(blocksize*magnification/100,blocksize*magnification/100))
+            magnified_image = pygame.transform.scale(surfaces_HighQuality[PIECES[elemClickIndex].piece][PIECES[elemClickIndex].color],(blocksize*magnification/100,blocksize*magnification/100))
             screen.blit(magnified_image,
                         (PIECES[elemClickIndex].temp_pos[0] - PIECES[elemClickIndex].delx*magnification/100, PIECES[elemClickIndex].temp_pos[1] - PIECES[elemClickIndex].dely*magnification/100))
 
@@ -161,11 +185,11 @@ def movesView():
             rectangle = pygame.Surface((blocksize, blocksize))
             rectangle.set_alpha(200)
             if legal_pos == elemPos2:
-                rectangle.fill((71, 214, 187))
+                rectangle.fill((243, 190, 90))
                 screen.blit(
                     rectangle, (distx + legal_pos[0]*blocksize, disty + legal_pos[1]*blocksize))
             else:
-                rectangle.fill((71, 209, 69))
+                rectangle.fill((85, 172, 243))
                 screen.blit(
                     rectangle, (distx + legal_pos[0]*blocksize, disty + legal_pos[1]*blocksize))
         rectangle = pygame.Surface((blocksize, blocksize))
