@@ -1,14 +1,18 @@
 from thechess import *
 import pygame
 from os import system
+boardFlip = True    #if true then flips the board after every move of the player else doesn't flips the board
+if boardFlip == True:
+    old_chance = 0
 FoNt = 0
 FoNtprint = 0
-old_chance = 0
 chance = 1
 distx = 0
 disty = 0
 blocksize = 100
+magnification = 150
 mouseDown = 2
+mouseDownFirstTime = False
 screen_size = [800, 800]
 pieceClicked = False
 elemClickIndex = None
@@ -123,7 +127,7 @@ def board():
 
 
 def Chessman():
-    global PIECES, surfaces, distx, disty, blocksize, elemClickIndex, translucentOldPos
+    global PIECES, surfaces, distx, disty, blocksize, elemClickIndex, translucentOldPos, mouseDownFirstTime, magnification
     for i in PIECES:
         if i.captured == False:
             if PIECES.index(i) != elemClickIndex:
@@ -136,9 +140,19 @@ def Chessman():
                 screen.blit(translucentOldPos,
                             (distx + i.pos[0]*blocksize, disty + i.pos[1]*blocksize))
     if elemClickIndex != None:
-        screen.blit(surfaces[PIECES[elemClickIndex].piece][PIECES[elemClickIndex].color],
-                    (PIECES[elemClickIndex].temp_pos[0] - PIECES[elemClickIndex].delx, PIECES[elemClickIndex].temp_pos[1] - PIECES[elemClickIndex].dely))
+        if mouseDownFirstTime == True:
+            magnification = 100
+            mouseDownFirstTime = False
 
+        if magnification < 130:
+            magnified_image = pygame.transform.scale(surfaces[PIECES[elemClickIndex].piece][PIECES[elemClickIndex].color],(blocksize*magnification/100,blocksize*magnification/100))
+            screen.blit(magnified_image,
+                        (PIECES[elemClickIndex].temp_pos[0] - PIECES[elemClickIndex].delx*magnification/100, PIECES[elemClickIndex].temp_pos[1] - PIECES[elemClickIndex].dely*magnification/100))
+            magnification+= 7
+        else:
+            magnified_image = pygame.transform.scale(surfaces[PIECES[elemClickIndex].piece][PIECES[elemClickIndex].color],(blocksize*magnification/100,blocksize*magnification/100))
+            screen.blit(magnified_image,
+                        (PIECES[elemClickIndex].temp_pos[0] - PIECES[elemClickIndex].delx*magnification/100, PIECES[elemClickIndex].temp_pos[1] - PIECES[elemClickIndex].dely*magnification/100))
 
 def movesView():
     global elemClickIndex, pieceClicked, PIECES, distx, disty, blocksize, elemPos2
@@ -200,11 +214,13 @@ def lastmove():
                                     round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
                         printpy("Check Mate!",
                                 screen_size, (28, 82, 156))
-                        font("Calibri",40)
+                        font("Calibri", 40)
                         if i.color == -1:
-                            printpy("White Wins",(screen_size[0],screen_size[1]+200),(28, 82, 156))
+                            printpy(
+                                "White Wins", (screen_size[0], screen_size[1]+200), (28, 82, 156))
                         else:
-                            printpy("Black Wins",(screen_size[0],screen_size[1]+200),(28, 82, 156))
+                            printpy(
+                                "Black Wins", (screen_size[0], screen_size[1]+200), (28, 82, 156))
                     elif (chess.total_cost(i.color) in [3, 0]) and (chess.total_cost(-i.color) in [3, 0]):
                         check_mate = 1
 
@@ -242,11 +258,13 @@ def lastmove():
                                     round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
                         printpy("Check Mate!",
                                 screen_size, (28, 82, 156))
-                        font("Calibri",40)
+                        font("Calibri", 40)
                         if i.color == -1:
-                            printpy("White Wins",(screen_size[0],screen_size[1]+200),(28, 82, 156))
+                            printpy(
+                                "White Wins", (screen_size[0], screen_size[1]+200), (28, 82, 156))
                         else:
-                            printpy("Black Wins",(screen_size[0],screen_size[1]+200),(28, 82, 156))
+                            printpy(
+                                "Black Wins", (screen_size[0], screen_size[1]+200), (28, 82, 156))
                     elif (chess.total_cost(i.color) in [3, 0]) and (chess.total_cost(-i.color) in [3, 0]):
                         check_mate = 1
 
@@ -284,6 +302,7 @@ while running == True:
             mouseDown += 1
             if mouseDown % 3 == 0 and check_mate == False:
                 mouseDown += 1
+                mouseDownFirstTime = True
                 mpos = pygame.mouse.get_pos()
                 pieceClicked = False
                 if mpos[0] > distx and mpos[0] < distx+blocksize*8 and mpos[1] > disty and mpos[1] < disty+blocksize*8:
@@ -317,6 +336,7 @@ while running == True:
                     mouseDown += 1
                 elif mouseDown % 3 == 0:
                     mouseDown += 2
+                mouseDownFirstTime = False
                 mpos1 = pygame.mouse.get_pos()
                 elemPos1 = (((mpos1[0]-distx)//blocksize),
                             ((mpos1[1]-disty)//blocksize))
@@ -334,6 +354,13 @@ while running == True:
                         if PIECES[elemClickIndex].pos[1] in [0, 7]:
                             PIECES[elemClickIndex].piece = 1
                             PIECES[elemClickIndex].cost = 9
+                    if PIECES[elemClickIndex].piece == 0:
+                        for elem in PIECES[elemClickIndex].castling:
+                            if tuple(PIECES[elemClickIndex].pos) == elem[0]:
+                                rook = chess.obj_from_num(elem[1])
+                                rook.pos = elem[2]
+                                rook.temp_pos = elem[2]
+                        PIECES[elemClickIndex].castling = []
 
                     capturedNumber = [(i.number) for i in PIECES if ((i.pos == PIECES[elemClickIndex].pos) and
                                       (i.color != PIECES[elemClickIndex].color) and (i.captured == False))]
@@ -359,15 +386,18 @@ while running == True:
                     elemClickIndex = None
 
     # Code Here
-    if old_chance != chance:
-        old_chance = chance
-        for i in PIECES:
-            i.pos = ((7-i.pos[0]),(7-i.pos[1]))
-            i.init_pos = ((7-i.init_pos[0]),(7-i.init_pos[1]))
-            i.temp_pos = ((7-i.temp_pos[0]),(7-i.temp_pos[1]))
-        if len(chess.Moves) > 0:
-            chess.Moves[-1][2] = ((7-chess.Moves[-1][2][0]),(7-chess.Moves[-1][2][1]))
-            chess.Moves[-1][1] = ((7-chess.Moves[-1][1][0]),(7-chess.Moves[-1][1][1]))
+    if boardFlip == True:
+        if old_chance != chance:
+            old_chance = chance
+            for i in PIECES:
+                i.pos = ((7-i.pos[0]), (7-i.pos[1]))
+                i.init_pos = ((7-i.init_pos[0]), (7-i.init_pos[1]))
+                i.temp_pos = ((7-i.temp_pos[0]), (7-i.temp_pos[1]))
+            if len(chess.Moves) > 0:
+                chess.Moves[-1][2] = ((7-chess.Moves[-1][2][0]),
+                                      (7-chess.Moves[-1][2][1]))
+                chess.Moves[-1][1] = ((7-chess.Moves[-1][1][0]),
+                                      (7-chess.Moves[-1][1][1]))
     if check_mate == False:
         board()
         if elemClickIndex != None and pieceClicked == True:
