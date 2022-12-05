@@ -42,6 +42,7 @@ class chess:
         elif color == 0:
             return ([tuple(i.pos) for i in chess.white if ((i.number != _except) and (i.number != __except) and (i.captured == False))]+[tuple(i.pos) for i in chess.black if ((i.number != _except) and (i.number != __except) and (i.captured == False))])
 
+        
     def total_legal_moves(colour):
         moves = set()
         if colour == 1:
@@ -54,6 +55,7 @@ class chess:
                     moves.add(position)
         return moves
 
+    
     def total_cost(colour):
         cost = 0
         if colour == 1:
@@ -92,6 +94,7 @@ class chess:
                         else:
                             i.capture = True
 
+                            
     def check(colour):
         if colour == -1:
             for i in chess.white:
@@ -110,6 +113,7 @@ class chess:
                                 return True
                     return False
 
+                
     def attacked_pos(colour):
         positions = set()
         if colour == -1:
@@ -124,8 +128,8 @@ class chess:
                         positions.add(pos)
         return positions
 
+    
     # returns the object with the serial number given
-
     def obj_from_num(num):
         for i in chess.white:
             if i.number == num:
@@ -142,6 +146,7 @@ class chess:
             if i.pos == position:
                 return i
 
+            
     # if type is True, it means that it is needed to check if the given position is true, else it means to return a set of legal moves
     def legal_moves(self, type: bool, position=tuple(), trial=False):
         legal_moves = set()
@@ -488,6 +493,7 @@ class chess:
                         terminate = False
                         break
 
+                        
                 for x in range(self.pos[0] + 1, 8):
                     for y in range(self.pos[1] - 1, -1, -1):
                         # Searching for legal moves in bottom left direction diagonally until a piece comes in the way
@@ -534,6 +540,7 @@ class chess:
                         terminate = False
                         break
 
+                        
             elif self.piece == 2:  # legal move of Rook
                 for x in range(self.pos[0] - 1, -1, -1):
                     # Searching for legal moves in horizontally backward direction until a black or white piece comes in the way
@@ -560,6 +567,7 @@ class chess:
                             self.pos = self.check_pos
                             self.captured_pos((x, self.pos[1]), True)
                             break
+                            
                         else:
                             self.check_pos = self.pos
                             self.pos = (x, self.pos[1])
@@ -618,6 +626,7 @@ class chess:
                             break
                         else:
                             legal_moves.add((self.pos[0], y))
+                            
                     else:
                         if (self.pos[0], y) in chess.occupied_pos(self.color, self.number):
                             break
@@ -643,6 +652,7 @@ class chess:
                             self.pos = self.check_pos
                             self.captured_pos((self.pos[0], y), True)
 
+                            
                 for y in range(self.pos[1] + 1, 8):
                     # Searching for legal moves in vertically forward direction until a black or white piece comes in the way
                     if trial == True:
@@ -725,6 +735,7 @@ class chess:
                     if terminate == True:
                         terminate = False
                         break
+                        
                 for x in range(self.pos[0] - 1, -1, -1):
                     for y in range(self.pos[1] + 1, 8):
                         # Searching for legal moves in top right direction diagonally until a piece comes in the way
@@ -788,6 +799,7 @@ class chess:
                                     legal_moves.add((x, y))
                             else:
 
+                                
                                 if (x, y) in chess.occupied_pos(self.color, self.number):
                                     terminate = True
                                     break
