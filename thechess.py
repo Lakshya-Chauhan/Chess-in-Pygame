@@ -24,6 +24,7 @@ class chess:
         self.captures = 0  # number of times the piece have captured a piece
         # if the move would be en passant it would store the position
         self.en_passant = [False, False]
+        self.castling = []
 
         if self.color == -1:
             chess.white.append(self)
@@ -31,7 +32,7 @@ class chess:
             chess.black.append(self)
 
     # returns the set of all positions of given color, else give all other position of the color given except the exception(the exception's number is given) given
-    def occupied_pos(color: int, _except=None):
+    def occupied_pos(color: int, _except=None, __except=None):
         if color == -1:
             return [tuple(i.pos) for i in chess.white if ((i.number != _except) and (i.captured == False))]
             # returns the list of all the white positions except the exception
@@ -39,7 +40,7 @@ class chess:
             return [tuple(i.pos) for i in chess.black if ((i.number != _except) and (i.captured == False))]
             # returns the list of all the black positions except the exception
         elif color == 0:
-            return ([tuple(i.pos) for i in chess.white if ((i.number != _except) and (i.captured == False))]+[tuple(i.pos) for i in chess.black if ((i.number != _except) and (i.captured == False))])
+            return ([tuple(i.pos) for i in chess.white if ((i.number != _except) and (i.number != __except) and (i.captured == False))]+[tuple(i.pos) for i in chess.black if ((i.number != _except) and (i.number != __except) and (i.captured == False))])
 
     def total_legal_moves(colour):
         moves = set()
@@ -64,6 +65,12 @@ class chess:
                 if i.captured == False:
                     cost += i.cost
         return cost
+
+    def available_pieces(colour, piece_value):
+        if colour == -1:
+            return [i for i in chess.white if (i.captured == False) and (i.piece == piece_value)]
+        if colour == 1:
+            return [i for i in chess.black if (i.captured == False) and (i.piece == piece_value)]
 
     # if any object is at that place then set it to be captured
     def captured_pos(self, position, type=False):
@@ -168,6 +175,36 @@ class chess:
                                             self.pos = self.check_pos
                                 else:
                                     legal_moves.add((x, y))
+                                    
+                if trial == False:
+                    if self.moves == 0:
+                        for rook in chess.available_pieces(self.color, 2):
+                            if rook.moves == 0:
+                                if (self.pos[0]-rook.pos[0]) > 0:
+                                    for x in range(self.pos[0], rook.pos[0]-1, -1):
+                                        if (x, self.pos[1]) in chess.attacked_pos(-self.color):
+                                            break
+                                        if (x, self.pos[1]) in chess.occupied_pos(0, self.number, rook.number):
+                                            break
+                                    else:
+                                        legal_moves.add(
+                                            (self.pos[0]-2, self.pos[1]))
+                                        self.castling.append(
+                                            [(self.pos[0]-2, self.pos[1]), rook.number, (self.pos[0]-1, self.pos[1])])
+                                    continue
+                                else:
+                                    for x in range(self.pos[0], rook.pos[0]+1):
+                                        if (x, self.pos[1]) in chess.attacked_pos(-self.color):
+                                            break
+                                        if (x, self.pos[1]) in chess.occupied_pos(0, self.number, rook.number):
+                                            break
+                                    else:
+                                        legal_moves.add(
+                                            (self.pos[0]+2, self.pos[1]))
+                                        self.castling.append(
+                                            [(self.pos[0]+2, self.pos[1]), rook.number, (self.pos[0]+1, self.pos[1])])
+                                    continue
+
             elif self.piece == 1:  # legal move of Queen
 
                 for x in range(self.pos[0] - 1, -1, -1):
