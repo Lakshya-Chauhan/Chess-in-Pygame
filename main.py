@@ -1,9 +1,12 @@
 from thechess import *
 import pygame
+from pygame import mixer
 from os import system
 boardFlip = True    #if true then flips the board after every move of the player else doesn't flips the board
 if boardFlip == True:
     old_chance = 0
+play_end_music_once = False
+checked = False
 FoNt = 0
 FoNtprint = 0
 chance = 1
@@ -19,6 +22,18 @@ elemClickIndex = None
 translucentOldPos = 0
 check_mate = False
 elemPos2 = tuple()
+
+mixer.init()
+audio = {
+    'start'     :   mixer.Sound('audio/start.mp3'),
+    'move'      :   mixer.Sound('audio/move.mp3'),
+    'capture'   :   mixer.Sound('audio/capture.mp3'),
+    'check'     :   mixer.Sound('audio/check.mp3'),
+    'castle'    :   mixer.Sound('audio/castle.mp3'),
+    'game_over' :   mixer.Sound('audio/game_over.mp3'),
+    'draw'      :   mixer.Sound('audio/draw.mp3'),
+    'checkmate' :   mixer.Sound('audio/checkmate.mp3')
+}
 
 #images from :-
 #https://github.com/lichess-org/lila/issues/3411
@@ -127,6 +142,7 @@ screen = pygame.display.set_mode((screen_size[0], screen_size[1]))
 #icon = pygame.image.load('')
 pygame.display.set_caption("Chess")
 # pygame.display.set_icon(icon)
+audio['start'].play()
 cls()
 
 
@@ -200,7 +216,7 @@ def movesView():
 
 
 def lastmove():
-    global PIECES, distx, disty, blocksize, check_mate, screen_size
+    global PIECES, distx, disty, blocksize, check_mate, screen_size, play_end_music_once
     font("Calibri", 100)
     if len(chess.Moves) != 0 and check_mate == False:
         elem = chess.obj_from_num(chess.Moves[-1][0])
@@ -245,6 +261,9 @@ def lastmove():
                         else:
                             printpy(
                                 "Black Wins", (screen_size[0], screen_size[1]+200), (28, 82, 156))
+                        if play_end_music_once == False:
+                            play_end_music_once = True
+                            audio["checkmate"].play()
                     elif (chess.total_cost(i.color) in [3, 0]) and (chess.total_cost(-i.color) in [3, 0]):
                         check_mate = 1
 
@@ -257,6 +276,9 @@ def lastmove():
                                 screen.blit(Lastmove, ((
                                     round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
                         printpy("Draw!", screen_size, (28, 82, 156))
+                        if play_end_music_once == False:
+                            play_end_music_once = True
+                            audio["draw"].play()
                     break
     elif chess.check(1) == True:
         for i in PIECES:
@@ -289,6 +311,9 @@ def lastmove():
                         else:
                             printpy(
                                 "Black Wins", (screen_size[0], screen_size[1]+200), (28, 82, 156))
+                        if play_end_music_once == False:
+                            play_end_music_once = True
+                            audio["checkmate"].play()
                     elif (chess.total_cost(i.color) in [3, 0]) and (chess.total_cost(-i.color) in [3, 0]):
                         check_mate = 1
 
@@ -301,6 +326,9 @@ def lastmove():
                                 screen.blit(Lastmove, ((
                                     round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
                         printpy("Draw!", screen_size, (28, 82, 156))
+                        if play_end_music_once == False:
+                            play_end_music_once = True
+                            audio["draw"].play()
                     break
     elif (len(chess.total_legal_moves(-1)) == 0) or (len(chess.total_legal_moves(1)) == 0) or ((chess.total_cost(1) in [3, 0]) and (chess.total_cost(-1) in [3, 0])):
         check_mate = 1
@@ -313,6 +341,9 @@ def lastmove():
                 screen.blit(Lastmove, ((
                     round(screen_size[0]/2) - round(x/2)), (round(screen_size[1]/2) - round(y/2))))
         printpy("Draw!", screen_size, (28, 82, 156))
+        if play_end_music_once == False:
+            play_end_music_once = True
+            audio["draw"].play()
 
 
 running = True
@@ -374,34 +405,60 @@ while running == True:
                     PIECES[elemClickIndex].delx = 0
                     PIECES[elemClickIndex].dely = 0
                     PIECES[elemClickIndex].moves += 1
-                    if PIECES[elemClickIndex].piece == 5:
-                        if PIECES[elemClickIndex].pos[1] in [0, 7]:
-                            PIECES[elemClickIndex].piece = 1
-                            PIECES[elemClickIndex].cost = 9
+                    capturedNumber = [(i.number) for i in PIECES if ((i.pos == PIECES[elemClickIndex].pos) and
+                                      (i.color != PIECES[elemClickIndex].color) and (i.captured == False))]
+                    if (chess.check(-1) == True) or (chess.check(1) == True):
+                        checked = True
                     if PIECES[elemClickIndex].piece == 0:
                         for elem in PIECES[elemClickIndex].castling:
                             if tuple(PIECES[elemClickIndex].pos) == elem[0]:
                                 rook = chess.obj_from_num(elem[1])
                                 rook.pos = elem[2]
                                 rook.temp_pos = elem[2]
+                                if checked == False:
+                                    audio["castle"].play()
+                                break
+                        else:
+                            if checked == False:
+                                audio['move'].play()
                         PIECES[elemClickIndex].castling = []
-
-                    capturedNumber = [(i.number) for i in PIECES if ((i.pos == PIECES[elemClickIndex].pos) and
-                                      (i.color != PIECES[elemClickIndex].color) and (i.captured == False))]
-                    if len(capturedNumber) == 1:
+                    elif len(capturedNumber) == 1:
                         for i in range(len(PIECES)):
                             if PIECES[i].captured == False:
                                 if PIECES[i].number == capturedNumber[0]:
                                     PIECES[i].captured = True
                                     PIECES[elemClickIndex].captures += 1
-
+                                    if not((chess.check(1) == True) or (chess.check(-1) == True)):
+                                        audio["capture"].play()
+                                        checked = False
+                                    break
+                        else:
+                            if checked == False:
+                                audio['move'].play()
                     elif PIECES[elemClickIndex].pos == PIECES[elemClickIndex].en_passant[1]:
                         for captured_elem in PIECES:
                             if captured_elem.number == PIECES[elemClickIndex].en_passant[0]:
                                 captured_elem.captured = True
                                 PIECES[elemClickIndex].en_passant = [
                                     False, False]
+                                if checked == False:
+                                    audio["capture"].play()
                                 break
+                        else:
+                            if checked == False:
+                                audio['move'].play()
+                    elif PIECES[elemClickIndex].piece == 5:
+                        if PIECES[elemClickIndex].pos[1] in [0, 7]:
+                            PIECES[elemClickIndex].piece = 1
+                            PIECES[elemClickIndex].cost = 9
+                        if checked == False:
+                            audio['move'].play()
+                    else:
+                        if checked == False:
+                            audio['move'].play()
+                    if checked == True:
+                        audio['check'].play()
+                    checked = False
                     pieceClicked = False
                     elemClickIndex = None
                 else:
