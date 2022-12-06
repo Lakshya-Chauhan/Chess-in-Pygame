@@ -409,20 +409,8 @@ while running == True:
                                       (i.color != PIECES[elemClickIndex].color) and (i.captured == False))]
                     if (chess.check(-1) == True) or (chess.check(1) == True):
                         checked = True
-                    if PIECES[elemClickIndex].piece == 0:
-                        for elem in PIECES[elemClickIndex].castling:
-                            if tuple(PIECES[elemClickIndex].pos) == elem[0]:
-                                rook = chess.obj_from_num(elem[1])
-                                rook.pos = elem[2]
-                                rook.temp_pos = elem[2]
-                                if checked == False:
-                                    audio["castle"].play()
-                                break
-                        else:
-                            if checked == False:
-                                audio['move'].play()
-                        PIECES[elemClickIndex].castling = []
-                    elif len(capturedNumber) == 1:
+                        
+                    if len(capturedNumber) == 1:
                         for i in range(len(PIECES)):
                             if PIECES[i].captured == False:
                                 if PIECES[i].number == capturedNumber[0]:
@@ -435,6 +423,19 @@ while running == True:
                         else:
                             if checked == False:
                                 audio['move'].play()
+                    elif PIECES[elemClickIndex].piece == 0:
+                        for elem in PIECES[elemClickIndex].castling:
+                            if tuple(PIECES[elemClickIndex].pos) == elem[0]:
+                                rook = chess.obj_from_num(elem[1])
+                                rook.pos = elem[2]
+                                rook.temp_pos = elem[2]
+                                if checked == False:
+                                    audio["castle"].play()
+                                break
+                        else:
+                            if checked == False:
+                                audio['move'].play()
+                        PIECES[elemClickIndex].castling = []
                     elif PIECES[elemClickIndex].pos == PIECES[elemClickIndex].en_passant[1]:
                         for captured_elem in PIECES:
                             if captured_elem.number == PIECES[elemClickIndex].en_passant[0]:
