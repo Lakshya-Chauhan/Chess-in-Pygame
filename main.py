@@ -2,6 +2,7 @@ from thechess import *
 import pygame
 from pygame import mixer
 from os import system
+import time
 boardFlip = True    #if true then flips the board after every move of the player else doesn't flips the board
 if boardFlip == True:
     old_chance = 0
@@ -139,9 +140,9 @@ def printpy(x: str, a=(100, 400), y=(128, 128, 128)):
 
 pygame.init()
 screen = pygame.display.set_mode((screen_size[0], screen_size[1]))
-#icon = pygame.image.load('')
+icon = pygame.image.load('images/icon.png')
 pygame.display.set_caption("Chess")
-# pygame.display.set_icon(icon)
+pygame.display.set_icon(icon)
 audio['start'].play()
 cls()
 
@@ -448,14 +449,16 @@ while running == True:
                         else:
                             if checked == False:
                                 audio['move'].play()
-                    elif PIECES[elemClickIndex].piece == 5:
+                    else:
+                        if checked == False:
+                            audio['move'].play()
+                    
+                    if PIECES[elemClickIndex].piece == 5:
                         if PIECES[elemClickIndex].pos[1] in [0, 7]:
                             PIECES[elemClickIndex].piece = 1
                             PIECES[elemClickIndex].cost = 9
-                        if checked == False:
                             audio['move'].play()
-                    else:
-                        if checked == False:
+                            time.sleep(0.05)
                             audio['move'].play()
                     if checked == True:
                         audio['check'].play()
